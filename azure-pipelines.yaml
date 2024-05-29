@@ -20,3 +20,6 @@ stages:
         - task: TwineAuthenticate@1
           inputs:
             artifactFeed: 'integration-connectors'
+        - script: |
+            python -m twine upload -r integration-connectors --config-file $(PYPIRC_PATH) dist/*.whl
+          displayName: 'Upload to feed'
