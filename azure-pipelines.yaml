@@ -11,6 +11,7 @@ stages:
         - script: |
             pip install build
             pip install twine
+            pip install twine keyring artifacts-keyring
           displayName: 'Install build and twine'
 
         - script: |
