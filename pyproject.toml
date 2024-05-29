@@ -22,8 +22,8 @@ Homepage = "https://dev.azure.com/seattleu-its/_git/Standard_Integration_Connect
 
 
 [distutils]
-Index-servers =
-  integration-connectors
+Index-servers = 
+    integration-connectors
 
 [integration-connectors]
 Repository = https://pkgs.dev.azure.com/seattleu-its/_packaging/integration-connectors/pypi/upload/
