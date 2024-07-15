@@ -4,6 +4,8 @@ import requests
 from office365.runtime.auth.authentication_context import AuthenticationContext
 from office365.sharepoint.client_context import ClientContext
 from office365.sharepoint.files.file import File
+from datetime import date, timedelta
+import datetime
 
 # Set logging variables
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'),
@@ -30,7 +32,7 @@ class SharePoint:
 
     def auth(self):
         log.info('Begin SharePoint authentication')
-        sharepoint_full_url = self.sp_base_url + self.sp_site
+        sharepoint_full_url = self.sp_base_url + '/sites/' + self.sp_site
         sharepoint_relative_url = self.sp_site + '/' + self.sp_doc
         #ctx_auth = AuthenticationContext(sharepoint_full_url)
         #ctx_auth.acquire_token_for_user(self.sp_user, self.sp_pw)
@@ -78,11 +80,50 @@ class SharePoint:
         file = ctx.web.get_folder_by_server_relative_url(sp_dir).upload_file(name, file_content).execute_query()
         log.info('Successfully uploaded ' + file_name + ' to SharePoint')
 
-    '''def delete_file(self):
-        log.info('Connecting to SFS SharePoint site to delete ' + self.file_name)
+
+    def delete_file(self, timeInDays):
+        log.info('Connecting to SharePoint site to delete')
         sharepoint_relative_url, ctx = self.auth()
 
-        log.info('Deleting ' + self.file_name + ' from SharePoint')
-        file_rel_url = sharepoint_relative_url + self.file_name
-        file_to_delete = ctx.web.get_file_by_server_relative_url(file_rel_url).delete_object().execute_query()
-        log.info('Successfully deleted ' + self.file_name + ' in SharePoint')'''
+        try:
+                target_folder_url = self.sp_doc
+                libraryFolderroot = ctx.web.get_folder_by_server_relative_url(target_folder_url)
+                ctx.load(libraryFolderroot)
+                ctx.execute_query()
+
+                delta_days = timeInDays
+                cutoff_date = (date.today() - timedelta(days=delta_days))
+                log.info("Cutoff date :  " + str(cutoff_date))
+                cutoff_year = cutoff_date.year
+                cutoff_month = cutoff_date.month
+                cutoff_day = cutoff_date.day
+
+                include_fields = ["TimeLastModified", "ServerRelativeUrl", "TimeCreated"]
+                from_datetime = datetime.datetime(cutoff_year, cutoff_month, cutoff_day, 0, 0)
+                filter_text = "TimeLastModified lt datetime'{0}'".format(from_datetime.isoformat())
+                folders = libraryFolderroot.folders.filter(filter_text).select(include_fields).get().execute_query()
+                files = libraryFolderroot.files.filter(filter_text).select(include_fields).get().execute_query()
+
+                log.info("Total folders to delete : " + str(len(folders)))
+                log.info("Total files to delete : " + str(len(files)))
+                for item in folders:
+                    log.info("Folder url: %s", item.properties["ServerRelativeUrl"])
+                    log.info("CreatedDate: %s", item.properties["TimeCreated"])
+                    log.info("LastModifiedDate: %s", item.properties["TimeLastModified"])
+                    file_to_delete = ctx.web.get_folder_by_server_relative_url(item.properties["ServerRelativeUrl"])
+                    file_to_delete.delete_object()
+                    ctx.execute_query()
+                    log.info("Folder Deleted")
+
+                for item in files:
+                    log.info("File url: %s", item.properties["ServerRelativeUrl"])
+                    log.info("CreatedDate: %s", item.properties["TimeCreated"])
+                    log.info("LastModifiedDate: %s", item.properties["TimeLastModified"])
+                    file_to_delete = ctx.web.get_file_by_server_relative_url(item.properties["ServerRelativeUrl"])
+                    file_to_delete.delete_object()
+                    ctx.execute_query()
+                    log.info("File Deleted")
+
+        except Exception as e:
+            print(repr(e))
+
