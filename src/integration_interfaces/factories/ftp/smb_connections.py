@@ -1,7 +1,7 @@
 
 from smb.SMBConnection import SMBConnection
 from dataclasses import dataclass
-from src.integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
+from integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 @dataclass

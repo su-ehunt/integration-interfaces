@@ -1,4 +1,4 @@
-from src.integration_interfaces.logging import log
+from integration_interfaces.logging import log
 
 def auth_wrap_ftp(func):
     '''Authenticates and closes FTP connection around FTP interaction

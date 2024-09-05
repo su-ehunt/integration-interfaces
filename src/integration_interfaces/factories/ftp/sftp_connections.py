@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import paramiko
-from src.integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
-from src.integration_interfaces.logging import log
-from src.integration_interfaces.aws_secrets_manager import get_secret_pkey
+from integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
+from integration_interfaces.logging import log
+from integration_interfaces.aws_secrets_manager import get_secret_pkey
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 @dataclass
