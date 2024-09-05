@@ -2,14 +2,8 @@ from typing import Protocol
 from src.integration_interfaces.factories.ftp.sftp_connections import SFTPPrivateKey,SFTPUserPassword
 from src.integration_interfaces.factories.ftp.smb_connections import SMBServer
 from src.integration_interfaces.aws_secrets_manager import get_secret_json
-import logging
-import os
+from src.integration_interfaces.logging import log
 
-logging.basicConfig(
-    level=os.environ.get("LOGLEVEL", "INFO"),
-    format="%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s",
-)
-log = logging.getLogger("logger")
 
 FTP_PROTOCOLS = {
     "sftp_password": SFTPUserPassword,
@@ -20,6 +14,12 @@ FTP_PROTOCOLS = {
 
 class FTPServer(Protocol):
     """Base Protocol class for our FTP endpoints"""
+    
+    def establish_connection(self,secret):
+        '''Initialize connection'''
+
+    def close_connection(self):
+        '''Closes FTP connection'''
 
     def push_file(self,filename,remote_path):
         '''Push File to FTP'''

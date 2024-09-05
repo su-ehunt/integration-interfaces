@@ -1,17 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import paramiko
-import logging
-import os
 from src.integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
+from src.integration_interfaces.logging import log
+from src.integration_interfaces.aws_secrets_manager import get_secret_pkey
 from tenacity import retry, stop_after_attempt, wait_exponential
-
-logging.basicConfig(
-    level=os.environ.get("LOGLEVEL", "INFO"),
-    format="%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s",
-)
-log = logging.getLogger("logger")
-
 
 @dataclass
 class SFTPServer(ABC):
@@ -85,13 +78,15 @@ class SFTPPrivateKey(SFTPServer):
         sftp_host = secret['sftp_host']
         sftp_port = secret['sftp_port']
         sftp_user = secret['sftp_user']
-        private_key = secret['private_kay']
+        private_key_secret = secret['private_key_secret'] #Location of pkey secret. Standards dictate it will be Vendor/ftp_secret/pkey
+        private_key = get_secret_pkey(private_key_secret) #Alma_RSA as reference secret
 
         with open('access_key.pem', 'w',encoding="UTF-8") as p_key:
             p_key.write(private_key)
+            log.info('Writing Private Key File to access_key.pem')
 
         transport = paramiko.Transport((sftp_host, sftp_port))
-        transport.connect(hostkey=None, username=sftp_user, pkey=private_key)
+        transport.connect(hostkey=None, username=sftp_user, pkey='access_key.pem')
         self.sftp = paramiko.SFTPClient.from_transport(transport)
 
 

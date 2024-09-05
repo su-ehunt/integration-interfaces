@@ -24,6 +24,20 @@ def get_secret_json(secret_name):
 
     return secrets
 
+def get_secret_pkey(secret_name):
+    
+    log.info('Connecting to AWS Secrets Manager')
+    try:
+        session = boto3.session.Session()
+        client = session.client('secretsmanager', 'us-west-2')
+        log.debug('Getting & Loading ' + secret_name + ' secrets')
+        aws_secret = get_secret(client, secret_name)
+    except Exception as e:
+        log.error(e)
+        raise e
+
+    return aws_secret
+
 def get_secret(client, secret_name):
     ''' In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
     See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
