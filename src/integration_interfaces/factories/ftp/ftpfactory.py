@@ -1,6 +1,21 @@
 from typing import Protocol
-from sftp_connections import SFTPPrivateKey,SFTPUserPassword
-from smb_connections import SMBServer
+from src.integration_interfaces.factories.ftp.sftp_connections import SFTPPrivateKey,SFTPUserPassword
+from src.integration_interfaces.factories.ftp.smb_connections import SMBServer
+import logging
+import os
+
+logging.basicConfig(
+    level=os.environ.get("LOGLEVEL", "INFO"),
+    format="%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s",
+)
+log = logging.getLogger("logger")
+
+FTP_PROTOCOLS = {
+    "sftp_password": SFTPUserPassword,
+    "sftp_pkey": SFTPPrivateKey,
+    "smb": SMBServer
+}
+
 
 class FTPServer(Protocol):
     """Base Protocol class for our FTP endpoints"""
@@ -20,22 +35,18 @@ class FTPServer(Protocol):
 def read_secret_to_endpoint(secret) -> type[FTPServer]:
     """Function to take in a secret and return the endpoint object we want"""
     #aws get secret
-    secret = secret.split('/')
-    endpoint_type = secret[1].split('_')[0]
-    match endpoint_type:
-        case "sftp":
-            return sftp_factory_reader(secret)
-        case "smb":
-            return SMBServer(secret)
-        case _:
-            print("Provided Secret name is not mapped to an initialization strategy")
-
-def sftp_factory_reader(secret):
+    #secret is AWS secret json
+    #auth is type of ftp endpoint stored in json
     auth = secret["auth"].lower()
-    match auth:
-        case "password":
-            return SFTPUserPassword(secret)
-        case "pkeyfile":
-            return SFTPPrivateKey(secret)
+    try:
+        return FTP_PROTOCOLS[auth](secret)
+    except Exception as e:
+        log.exception(e)
+
+
         
-        
+Slate
+IAM 
+Slate/
+Slate/smb_server
+

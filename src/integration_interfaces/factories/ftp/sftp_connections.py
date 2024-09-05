@@ -1,6 +1,17 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import paramiko
+import logging
+import os
+from src.integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+logging.basicConfig(
+    level=os.environ.get("LOGLEVEL", "INFO"),
+    format="%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s",
+)
+log = logging.getLogger("logger")
+
 
 @dataclass
 class SFTPServer(ABC):
@@ -11,26 +22,33 @@ class SFTPServer(ABC):
     '''
     sftp: paramiko.SFTPClient
     def __init__(self,secret) -> None:
-        self.establish_connection(secret)
+        self.secret = secret
+
     @abstractmethod
     def establish_connection(self,secret):
         '''Initialize self.sftp'''
-
+    
+    @auth_wrap_ftp
     def push_file(self,filename,remote_path):
         """Push SFTP File"""
         self.sftp.put(filename,remote_path)
 
+    @auth_wrap_ftp
     def pull_file(self,filename,remote_path):
         """Pull SFTP File"""
         self.sftp.get(remote_path,filename)
 
+    @auth_wrap_ftp
     def ls_files(self,remote_path):
         """List Files"""
         return self.sftp.listdir(remote_path)
-
+    
+    @auth_wrap_ftp
     def rm_file(self,filename):
         """Delete Remote File"""
         self.sftp.remove(filename)
+
+
 
 
 class SFTPUserPassword(SFTPServer):
@@ -40,6 +58,7 @@ class SFTPUserPassword(SFTPServer):
     Colleague
 
     '''
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self, secret):
         sftp_host = secret['sftp_host']
         sftp_port = secret['sftp_port']
@@ -48,6 +67,8 @@ class SFTPUserPassword(SFTPServer):
         transport = paramiko.Transport((sftp_host, sftp_port))
         transport.connect(username=sftp_user,password=sftp_pass)
         self.sftp = paramiko.SFTPClient.from_transport(transport)
+
+    
 
 class SFTPPrivateKey(SFTPServer):
     '''
@@ -58,6 +79,7 @@ class SFTPPrivateKey(SFTPServer):
     EverSpring
     Get Inclusive
     '''
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self, secret):
         sftp_host = secret['sftp_host']
         sftp_port = secret['sftp_port']
@@ -70,3 +92,5 @@ class SFTPPrivateKey(SFTPServer):
         transport = paramiko.Transport((sftp_host, sftp_port))
         transport.connect(hostkey=None, username=sftp_user, pkey=private_key)
         self.sftp = paramiko.SFTPClient.from_transport(transport)
+
+
