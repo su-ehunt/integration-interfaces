@@ -1,8 +1,8 @@
 from typing import Protocol
-from src.integration_interfaces.factories.ftp.sftp_connections import SFTPPrivateKey,SFTPUserPassword
-from src.integration_interfaces.factories.ftp.smb_connections import SMBServer
-from src.integration_interfaces.aws_secrets_manager import get_secret_json
-from src.integration_interfaces.logging import log
+from integration_interfaces.factories.ftp.sftp_connections import SFTPPrivateKey,SFTPUserPassword
+from integration_interfaces.factories.ftp.smb_connections import SMBServer
+from integration_interfaces.aws_secrets_manager import get_secret_json
+from integration_interfaces.logging import log
 
 
 FTP_PROTOCOLS = {

@@ -1,5 +1,5 @@
 from typing import Protocol
-from src.integration_interfaces.logging import log
+from integration_interfaces.logging import log
 
 
 def auth_sql_factory(db_secret,cred_secret):
