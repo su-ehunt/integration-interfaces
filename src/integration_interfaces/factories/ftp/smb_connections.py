@@ -23,18 +23,23 @@ class SMBServer():
         '''Establishes SMB connection'''
         conn = SMBConnection(self.ad_username, self.ad_password, self.ad_username, self.share_server_name, use_ntlm_v2=True)
         assert conn.connect(self.share_server_ip, 139)
-        
+   
+    @auth_wrap_ftp   
     def push_file(self,filename,remote_path):
         '''Push File to FTP'''
 
+    @auth_wrap_ftp
     def pull_file(self,filename,remote_path):
         '''Pul File from FTP'''
 
+    @auth_wrap_ftp
     def ls_files(self,remote_path):
         '''List Files in Directory'''
 
+    @auth_wrap_ftp
     def rm_file(self,filename):
         '''Deletes Remote File'''
-        
+
     def close_connection(self):
+        '''Close SMB Connection'''
         self.conn.close()
