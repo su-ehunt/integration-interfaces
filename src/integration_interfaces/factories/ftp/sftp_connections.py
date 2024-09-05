@@ -48,6 +48,8 @@ class SFTPServer(ABC):
         """Delete Remote File"""
         self.sftp.remove(filename)
 
+    def close_connection(self):
+        self.sftp.close()
 
 
 
@@ -68,7 +70,6 @@ class SFTPUserPassword(SFTPServer):
         transport.connect(username=sftp_user,password=sftp_pass)
         self.sftp = paramiko.SFTPClient.from_transport(transport)
 
-    
 
 class SFTPPrivateKey(SFTPServer):
     '''

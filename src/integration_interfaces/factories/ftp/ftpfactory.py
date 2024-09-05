@@ -1,6 +1,7 @@
 from typing import Protocol
 from src.integration_interfaces.factories.ftp.sftp_connections import SFTPPrivateKey,SFTPUserPassword
 from src.integration_interfaces.factories.ftp.smb_connections import SMBServer
+from src.integration_interfaces.aws_secrets_manager import get_secret_json
 import logging
 import os
 
@@ -32,21 +33,13 @@ class FTPServer(Protocol):
     def rm_file(self,filename):
         '''Deletes Remote File'''
 
-def read_secret_to_endpoint(secret) -> type[FTPServer]:
+def ftp_factory(secret_name) -> type[FTPServer]:
     """Function to take in a secret and return the endpoint object we want"""
-    #aws get secret
-    #secret is AWS secret json
-    #auth is type of ftp endpoint stored in json
+    secret = get_secret_json(secret_name)
     auth = secret["auth"].lower()
     try:
         return FTP_PROTOCOLS[auth](secret)
     except Exception as e:
         log.exception(e)
-
-
-        
-Slate
-IAM 
-Slate/
-Slate/smb_server
+        raise e
 

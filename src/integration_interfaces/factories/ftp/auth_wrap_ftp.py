@@ -7,7 +7,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("logger")
 
-def auth_wrap_ftp(self,func):
+def auth_wrap_ftp(func):
 
     def wrap(*args,**kwargs):
         class_instance = args[0]
