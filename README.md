@@ -13,3 +13,7 @@ There is one particularly obscure set of service accounts you need to configure 
 - Add two users with "Feed Publisher" roles
 -- \[Project Name] Build Service (seattleu-its) e.g. Standard_Integration_Connectors Build Service (seattleu-its)
 -- Project Collection Build Service (seattleu-its)
+
+# Project To Do
+- Add concrete Mock FTP classes that instantiate read only sessions for the case of not having a test environment FTP. 
+- Add tests: I want to make sure that in the pipeline, before we try uploading to twine, I want our code to pass a set of tests to make sure we didn't break anything with an update. 
