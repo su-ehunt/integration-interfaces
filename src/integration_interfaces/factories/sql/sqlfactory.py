@@ -1,9 +1,29 @@
-from typing import Protocol
 from integration_interfaces.logging import log
+from integration_interfaces.aws.secrets_manager import get_secret_json
+from integration_interfaces.factories.sql.sql_server_protocol import SQLServer
+from integration_interfaces.factories.sql.sql_protocols import SQL_PROTOCOLS
 
-
-def auth_sql_factory(db_secret,cred_secret):
-    pass
-
-def unauth_sql_factory(db_secret):
-    pass
+def sql_factory(db_secret,cred_secret) -> type[SQLServer]:
+    db_connection_vals = get_secret_json(db_secret)
+    db_auth = get_secret_json(cred_secret)
+    auth = db_connection_vals["auth"].lower()
+    try:
+        sql_method = SQL_PROTOCOLS[auth]
+    except KeyError as e:
+        log.error(f'No Auth method matching {auth} found in {SQL_PROTOCOLS.keys()}')
+        log.error(f'Please make sure you spelled the auth method correctly, or to add a new auth method')
+    except Exception as e:
+        log.exception(e)
+        raise e
+    try:
+        unauath_serv = sql_method(db_secret)
+    except Exception as e:
+        log.error(f'Failed to initialize SQL class. Make sure the secret stored in {db_secret}\
+                  has all the required fields for initiating a {auth} SQL server.')
+        log.exception(e)
+        raise e
+    try:
+        return unauath_serv.load_auth(db_auth)
+    except Exception as e:
+        log.exception(e)
+        raise e
