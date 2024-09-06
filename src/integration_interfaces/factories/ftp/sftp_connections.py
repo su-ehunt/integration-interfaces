@@ -16,6 +16,7 @@ class SFTPServer(ABC):
     sftp: paramiko.SFTPClient | None
     def __init__(self,secret) -> None:
         self.secret = secret
+        self.sftp = None
 
     @abstractmethod
     def establish_connection(self,secret):
