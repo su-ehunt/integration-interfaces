@@ -19,7 +19,7 @@ class SFTPServer(ABC):
         self.sftp = None
 
     @abstractmethod
-    def establish_connection(self,secret):
+    def establish_connection(self):
         '''Initialize self.sftp'''
     
     @auth_wrap_ftp
@@ -55,11 +55,11 @@ class SFTPUserPassword(SFTPServer):
 
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
-    def establish_connection(self, secret):
-        sftp_host = secret['sftp_host']
-        sftp_port = secret['sftp_port']
-        sftp_user = secret['sftp_user']
-        sftp_pass = secret['sftp_pass']
+    def establish_connection(self):
+        sftp_host = self.secret['sftp_host']
+        sftp_port = self.secret['sftp_port']
+        sftp_user = self.secret['sftp_user']
+        sftp_pass = self.secret['sftp_pass']
         transport = paramiko.Transport((sftp_host, sftp_port))
         transport.connect(username=sftp_user,password=sftp_pass)
         self.sftp = paramiko.SFTPClient.from_transport(transport)
@@ -75,11 +75,11 @@ class SFTPPrivateKey(SFTPServer):
     Get Inclusive
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
-    def establish_connection(self, secret):
-        sftp_host = secret['sftp_host']
-        sftp_port = secret['sftp_port']
-        sftp_user = secret['sftp_user']
-        private_key_secret = secret['private_key_secret'] #Location of pkey secret. Standards dictate it will be Vendor/ftp_secret/pkey
+    def establish_connection(self):
+        sftp_host = self.secret['sftp_host']
+        sftp_port = self.secret['sftp_port']
+        sftp_user = self.secret['sftp_user']
+        private_key_secret = self.secret['private_key_secret'] #Location of pkey secret. Standards dictate it will be Vendor/ftp_secret/pkey
         private_key = get_secret_pkey(private_key_secret) #Alma_RSA as reference secret
 
         with open('access_key.pem', 'w',encoding="UTF-8") as p_key:
