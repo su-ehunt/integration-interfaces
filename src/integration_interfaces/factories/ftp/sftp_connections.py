@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import paramiko
+from io import StringIO
 from integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
 from integration_interfaces.logging import log
 from integration_interfaces.aws_secrets_manager import get_secret_pkey
@@ -14,9 +15,11 @@ class SFTPServer(ABC):
     Essentially just an interface to paramiko
     '''
     sftp: paramiko.SFTPClient | None
-    def __init__(self,secret) -> None:
+    def __init__(self,secret: dict) -> None:
         self.secret = secret
         self.sftp = None
+        if 'private_key_secret' in secret.keys:
+            self.private_key = get_secret_pkey(secret['private_key_secret'])
 
     @abstractmethod
     def establish_connection(self):
@@ -113,15 +116,10 @@ class SFTPPrivateKey(SFTPServer):
         sftp_host = self.secret['sftp_host']
         sftp_port = int(self.secret['sftp_port'])
         sftp_user = self.secret['sftp_user']
-        private_key_secret = self.secret['private_key_secret'] #Location of pkey secret. Standards dictate it will be Vendor/ftp_secret/pkey
-        private_key = get_secret_pkey(private_key_secret) #Alma_RSA as reference secret
-
-        with open('access_key.pem', 'w',encoding="UTF-8") as p_key:
-            p_key.write(private_key)
-            log.info('Writing Private Key File to access_key.pem')
+        rsa_key = paramiko.RSAKey.from_private_key(StringIO(self.private_key))
 
         transport = paramiko.Transport((sftp_host, sftp_port))
-        transport.connect(hostkey=None, username=sftp_user, pkey='access_key.pem')
+        transport.connect(hostkey=None, username=sftp_user, pkey=rsa_key)
         self.sftp = paramiko.SFTPClient.from_transport(transport)
 
 
