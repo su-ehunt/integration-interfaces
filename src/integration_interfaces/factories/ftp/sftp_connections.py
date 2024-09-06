@@ -13,7 +13,7 @@ class SFTPServer(ABC):
     
     Essentially just an interface to paramiko
     '''
-    sftp: paramiko.SFTPClient
+    sftp: paramiko.SFTPClient | None
     def __init__(self,secret) -> None:
         self.secret = secret
 
