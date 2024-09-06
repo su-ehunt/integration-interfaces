@@ -45,7 +45,41 @@ class SFTPServer(ABC):
     def close_connection(self):
         self.sftp.close()
 
+@dataclass
+class ROSFTPServer():
+    '''
+    Abstract base class for Read Only SFTP servers
+    
+    For FTP servers for which there is no test environment.
+    This helps keep code consistent in test/prod.
+    '''
+    sftp: paramiko.SFTPClient | None
+    def __init__(self,secret) -> None:
+        self.secret = secret
+        self.sftp = None
+    
+    @auth_wrap_ftp
+    def push_file(self,filename,remote_path):
+        """Push SFTP File"""
+        log.info('Skipping push_file operation as FTP is Read Only')
 
+    @auth_wrap_ftp
+    def pull_file(self,filename,remote_path):
+        """Pull SFTP File"""
+        self.sftp.get(remote_path,filename)
+
+    @auth_wrap_ftp
+    def ls_files(self,remote_path):
+        """List Files"""
+        return self.sftp.listdir(remote_path)
+    
+    @auth_wrap_ftp
+    def rm_file(self,filename):
+        """Delete Remote File"""
+        log.info('Skipping push_file operation as FTP is Read Only')
+
+    def close_connection(self):
+        self.sftp.close()
 
 class SFTPUserPassword(SFTPServer):
     '''
@@ -91,3 +125,36 @@ class SFTPPrivateKey(SFTPServer):
         self.sftp = paramiko.SFTPClient.from_transport(transport)
 
 
+class ROSFTPUserPassword(ROSFTPServer,SFTPUserPassword):
+
+    def establish_connection(self):
+        return SFTPUserPassword.establish_connection(self)
+    
+    def push_file(self, filename, remote_path):
+        return ROSFTPServer.push_file(self,filename, remote_path)
+    
+    def pull_file(self, filename, remote_path):
+        return ROSFTPServer.pull_file(self,filename, remote_path)
+    
+    def ls_files(self, remote_path):
+        return ROSFTPServer.ls_files(self,remote_path)
+    
+    def rm_file(self, filename):
+        return ROSFTPServer.rm_file(self,filename)
+    
+class ROSFTPPrivateKey(ROSFTPServer,SFTPPrivateKey):
+
+    def establish_connection(self):
+        return SFTPPrivateKey.establish_connection(self)
+    
+    def push_file(self, filename, remote_path):
+        return ROSFTPServer.push_file(self,filename, remote_path)
+    
+    def pull_file(self, filename, remote_path):
+        return ROSFTPServer.pull_file(self,filename, remote_path)
+    
+    def ls_files(self, remote_path):
+        return ROSFTPServer.ls_files(self,remote_path)
+    
+    def rm_file(self, filename):
+        return ROSFTPServer.rm_file(self,filename)

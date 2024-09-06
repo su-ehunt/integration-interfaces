@@ -1,5 +1,6 @@
 from typing import Protocol
-from integration_interfaces.factories.ftp.sftp_connections import SFTPPrivateKey,SFTPUserPassword
+from integration_interfaces.factories.ftp.sftp_connections import \
+    SFTPPrivateKey,SFTPUserPassword,ROSFTPPrivateKey,ROSFTPUserPassword
 from integration_interfaces.factories.ftp.smb_connections import SMBServer
 from integration_interfaces.aws_secrets_manager import get_secret_json
 from integration_interfaces.logging import log
@@ -7,7 +8,9 @@ from integration_interfaces.logging import log
 
 FTP_PROTOCOLS = {
     "sftp_password": SFTPUserPassword,
+    "ro_sftp_password": ROSFTPUserPassword,
     "sftp_pkey": SFTPPrivateKey,
+    "ro_sftp_pkey": ROSFTPPrivateKey,
     "smb": SMBServer
 }
 
