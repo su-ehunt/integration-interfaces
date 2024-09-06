@@ -8,13 +8,14 @@ import json
 from botocore.exceptions import ClientError
 from integration_interfaces.logging import log
 
+session = boto3.session.Session()
+client = session.client('secretsmanager', 'us-west-2')
+
 def get_secret_json(secret_name):
     #Connects and retrieves secrets from AWS
 
     log.info('Connecting to AWS Secrets Manager')
     try:
-        session = boto3.session.Session()
-        client = session.client('secretsmanager', 'us-west-2')
         log.debug('Getting & Loading ' + secret_name + ' secrets')
         aws_secret = get_secret(client, secret_name)
         secrets = json.loads(aws_secret)
