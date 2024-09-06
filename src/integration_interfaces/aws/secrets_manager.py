@@ -3,13 +3,10 @@
 # https://aws.amazon.com/developers/getting-started/python/
 
 import base64
-import boto3
 import json
 from botocore.exceptions import ClientError
 from integration_interfaces.logging import log
-
-session = boto3.session.Session()
-client = session.client('secretsmanager', 'us-west-2')
+from integration_interfaces.aws.client_session import client
 
 def get_secret_json(secret_name):
     #Connects and retrieves secrets from AWS
