@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import paramiko
+from io import StringIO
 from integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
 from integration_interfaces.logging import log
 from integration_interfaces.aws_secrets_manager import get_secret_pkey
@@ -14,9 +15,11 @@ class SFTPServer(ABC):
     Essentially just an interface to paramiko
     '''
     sftp: paramiko.SFTPClient | None
-    def __init__(self,secret) -> None:
+    def __init__(self,secret: dict) -> None:
         self.secret = secret
         self.sftp = None
+        if 'private_key_secret' in secret.keys:
+            self.private_key = get_secret_pkey(secret['private_key_secret'])
 
     @abstractmethod
     def establish_connection(self):
@@ -45,7 +48,41 @@ class SFTPServer(ABC):
     def close_connection(self):
         self.sftp.close()
 
+@dataclass
+class ROSFTPServer():
+    '''
+    Abstract base class for Read Only SFTP servers
+    
+    For FTP servers for which there is no test environment.
+    This helps keep code consistent in test/prod.
+    '''
+    sftp: paramiko.SFTPClient | None
+    def __init__(self,secret) -> None:
+        self.secret = secret
+        self.sftp = None
+    
+    @auth_wrap_ftp
+    def push_file(self,filename,remote_path):
+        """Push SFTP File"""
+        log.info('Skipping push_file operation as FTP is Read Only')
 
+    @auth_wrap_ftp
+    def pull_file(self,filename,remote_path):
+        """Pull SFTP File"""
+        self.sftp.get(remote_path,filename)
+
+    @auth_wrap_ftp
+    def ls_files(self,remote_path):
+        """List Files"""
+        return self.sftp.listdir(remote_path)
+    
+    @auth_wrap_ftp
+    def rm_file(self,filename):
+        """Delete Remote File"""
+        log.info('Skipping push_file operation as FTP is Read Only')
+
+    def close_connection(self):
+        self.sftp.close()
 
 class SFTPUserPassword(SFTPServer):
     '''
@@ -79,15 +116,43 @@ class SFTPPrivateKey(SFTPServer):
         sftp_host = self.secret['sftp_host']
         sftp_port = int(self.secret['sftp_port'])
         sftp_user = self.secret['sftp_user']
-        private_key_secret = self.secret['private_key_secret'] #Location of pkey secret. Standards dictate it will be Vendor/ftp_secret/pkey
-        private_key = get_secret_pkey(private_key_secret) #Alma_RSA as reference secret
-
-        with open('access_key.pem', 'w',encoding="UTF-8") as p_key:
-            p_key.write(private_key)
-            log.info('Writing Private Key File to access_key.pem')
+        rsa_key = paramiko.RSAKey.from_private_key(StringIO(self.private_key))
 
         transport = paramiko.Transport((sftp_host, sftp_port))
-        transport.connect(hostkey=None, username=sftp_user, pkey='access_key.pem')
+        transport.connect(hostkey=None, username=sftp_user, pkey=rsa_key)
         self.sftp = paramiko.SFTPClient.from_transport(transport)
 
 
+class ROSFTPUserPassword(ROSFTPServer,SFTPUserPassword):
+
+    def establish_connection(self):
+        return SFTPUserPassword.establish_connection(self)
+    
+    def push_file(self, filename, remote_path):
+        return ROSFTPServer.push_file(self,filename, remote_path)
+    
+    def pull_file(self, filename, remote_path):
+        return ROSFTPServer.pull_file(self,filename, remote_path)
+    
+    def ls_files(self, remote_path):
+        return ROSFTPServer.ls_files(self,remote_path)
+    
+    def rm_file(self, filename):
+        return ROSFTPServer.rm_file(self,filename)
+    
+class ROSFTPPrivateKey(ROSFTPServer,SFTPPrivateKey):
+
+    def establish_connection(self):
+        return SFTPPrivateKey.establish_connection(self)
+    
+    def push_file(self, filename, remote_path):
+        return ROSFTPServer.push_file(self,filename, remote_path)
+    
+    def pull_file(self, filename, remote_path):
+        return ROSFTPServer.pull_file(self,filename, remote_path)
+    
+    def ls_files(self, remote_path):
+        return ROSFTPServer.ls_files(self,remote_path)
+    
+    def rm_file(self, filename):
+        return ROSFTPServer.rm_file(self,filename)

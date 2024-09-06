@@ -13,3 +13,14 @@ This class provides the framework that all concrete instatiations of FTP servers
 This is the function, which takes in the name of an AWS secret, parses out the auth method, and returns a concrete instantiation of your desired FTP server. Due to the strong typing of this function, when you use it to generate an FTP server, you should get syntax highlighting for methods of your generated object. 
 
 ### [sftp_connections.py](sftp_connections.py)
+This file creates an abstract base class for SFTP servers that acts as a base wrapper around Paramiko, along with a base class for read-only SFTP ROSFTP. 
+These classes are configured for cases when we do not have separated test/prod environments in our FTP, but still allow us to assert our connections, and complete read only operations to production assets. 
+
+There are also a collection of concrete instantiations of these classes for each combination of read only boolean and authentication method. 
+
+### [smb_connections.py](smb_connections.py)
+This file contains our logic for instantiating SMB connections. 
+
+### [auth_wrap_ftp.py](auth_wrap_ftp.py)
+This file contains a wrapper method for authenticating and closing FTP connections. Thanks to the FTP protocol, we know that regardless of the concrete details of an FTP (SFTP/SMB/auth method), each FTP class will have an establish and close connection method. 
+This allows us to wrap all function calls in the FTP class with an initial connection, and make sure to close out of FTP connections after operations are complete to avoid any dangling authenticated FTP sessions. 
