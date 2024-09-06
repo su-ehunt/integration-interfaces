@@ -18,7 +18,7 @@ class SFTPServer(ABC):
     def __init__(self,secret: dict) -> None:
         self.secret = secret
         self.sftp = None
-        if 'private_key_secret' in secret.keys:
+        if 'private_key_secret' in secret.keys():
             self.private_key = get_secret_pkey(secret['private_key_secret'])
 
     @abstractmethod
