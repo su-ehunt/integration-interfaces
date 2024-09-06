@@ -11,7 +11,7 @@ class SMBServer():
     Fidelity
     """
 
-    conn: SMBConnection
+    conn: SMBConnection | None
     def __init__(self,secret):
         self.ad_username = secret['ad_username']
         self.ad_password = secret['ad_password']
