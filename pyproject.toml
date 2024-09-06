@@ -7,7 +7,7 @@ packages = ["src/integration_interfaces"]
 
 [project]
 name = "integration_interfaces"
-version = "0.0.12"
+version = "0.0.13"
 authors = [
   { name="Elizabeth Hunt", email="ehunt@seattleu.edu" },
 ]
