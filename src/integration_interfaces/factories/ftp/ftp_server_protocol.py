@@ -8,6 +8,9 @@ class FTPServer(Protocol):
 
     def close_connection(self):
         '''Closes FTP connection'''
+    
+    def connected(self):
+        '''Returns whether or not the FTP connection is established'''
 
     def push_file(self,filename,remote_path):
         '''Push File to FTP'''
