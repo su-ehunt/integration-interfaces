@@ -1,0 +1,2 @@
+from package_testers.ftp_tests.concrete_ftp_tests.ftp_full_tester import FTPFullTester
+from package_testers.ftp_tests.concrete_ftp_tests.ftp_ro_tester import FTPROTester
