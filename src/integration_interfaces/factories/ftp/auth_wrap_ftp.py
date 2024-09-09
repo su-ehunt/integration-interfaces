@@ -10,22 +10,23 @@ def auth_wrap_ftp(func=None, *, apply_wrap=True):
     @wraps(func)
     def wrap(*args,**kwargs):
         class_instance = args[0]
-        log.info('Checking if underclass has updated wrapper')
-        log.info(f'{class_instance.apply_wrap}')
         if class_instance.apply_wrap == True:
+            log.debug("Authentication Wrapping Enabled, entering auth_wrap process")
              #Should return self as first arg of class method
             try:
                 log.info('Establishing FTP connection')
                 class_instance.establish_connection()
                 log.info('FTP Connection Established, Executing FTP method')
-                func(*args,**kwargs)
+                return func(*args,**kwargs)
             except Exception as e:
                 log.exception(e)
                 raise e
             finally:
                 class_instance.close_connection()
         else:
+            log.debug("Authentication Wrapping Disabled")
             if not class_instance.connected():
+                log.info("Establishing FTP Connection, will leave open")
                 class_instance.establish_connection()
             return func(*args,**kwargs)
     return wrap

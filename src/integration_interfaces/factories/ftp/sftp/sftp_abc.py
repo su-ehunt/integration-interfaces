@@ -28,12 +28,12 @@ class SFTPServer(ABC):
     @auth_wrap_ftp(apply_wrap = apply_wrap)
     def push_file(self,filename,remote_path):
         """Push SFTP File"""
-        self.sftp.put(filename,remote_path)
+        return self.sftp.put(filename,remote_path)
 
     @auth_wrap_ftp(apply_wrap = apply_wrap)  
     def pull_file(self,filename,remote_path):
         """Pull SFTP File"""
-        self.sftp.get(remote_path,filename)
+        return self.sftp.get(remote_path,filename)
 
     @auth_wrap_ftp(apply_wrap = apply_wrap)  
     def ls_files(self,remote_path):
@@ -43,10 +43,10 @@ class SFTPServer(ABC):
     @auth_wrap_ftp(apply_wrap = apply_wrap)  
     def rm_file(self,filename):
         """Delete Remote File"""
-        self.sftp.remove(filename)
+        return self.sftp.remove(filename)
 
     def close_connection(self):
-        self.sftp.close()
+        return self.sftp.close()
 
     def connected(self):
         return self.sftp is not None
@@ -73,7 +73,7 @@ class ROSFTPServer():
     @auth_wrap_ftp(apply_wrap = apply_wrap)  
     def pull_file(self,filename,remote_path):
         """Pull SFTP File"""
-        self.sftp.get(remote_path,filename)
+        return self.sftp.get(remote_path,filename)
 
     @auth_wrap_ftp(apply_wrap = apply_wrap)  
     def ls_files(self,remote_path):

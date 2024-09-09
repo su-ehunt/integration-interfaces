@@ -9,7 +9,7 @@ def auth_wrap_sql(func):
             log.info('Establishing SQL connection')
             class_instance.open_sql_connection()
             log.info('SQL Connection Established, Executing SQL method')
-            func(*args,**kwargs)
+            return func(*args,**kwargs)
         except Exception as e:
             log.exception(e)
             raise e
