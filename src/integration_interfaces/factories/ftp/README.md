@@ -1,6 +1,11 @@
 # The FTP Factory
 This python module standardizes interface methods with our FTP infrastructure. 
 
+## Secrets Configuration
+For detailed information on configuring secrets for a given integration endpoint, refer to the README's in the concrete factory directories
+- [SFTP Concrete Factories README.md](sftp/README.md)
+- [SMB Concrete Factories Readme.md](smb/README.md)
+
 ## Modules
 
 ### [ftpfactory.py](ftpfactory.py)
