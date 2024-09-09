@@ -9,8 +9,11 @@ def auth_wrap_ftp(func=None, *, apply_wrap=True):
     This avoids having any dangling FTP connections during runtime.'''
     @wraps(func)
     def wrap(*args,**kwargs):
-        if apply_wrap == True:
-            class_instance = args[0] #Should return self as first arg of class method
+        class_instance = args[0]
+        log.info('Checking if underclass has updated wrapper')
+        log.info(f'{class_instance.apply_wrap}')
+        if class_instance.apply_wrap == True:
+             #Should return self as first arg of class method
             try:
                 log.info('Establishing FTP connection')
                 class_instance.establish_connection()
