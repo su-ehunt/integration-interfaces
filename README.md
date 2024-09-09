@@ -15,5 +15,5 @@ There is one particularly obscure set of service accounts you need to configure 
 -- Project Collection Build Service (seattleu-its)
 
 # Project To Do
-- Add concrete Mock FTP classes that instantiate read only sessions for the case of not having a test environment FTP. 
-- Add tests: I want to make sure that in the pipeline, before we try uploading to twine, I want our code to pass a set of tests to make sure we didn't break anything with an update. 
+- Add tests: I want to make sure that in the pipeline, before we try uploading to twine, I want our code to pass a set of tests to make sure we didn't break anything with an update. Ideally I want a tester factory which returns a test function for a given protocol to satisfy.
+e.g. ftp_tester_factory(secret_name) -> Type FTP TEST

@@ -2,7 +2,7 @@ from functools import wraps
 from integration_interfaces.logging import log
 
 def auth_wrap_ftp(func=None, *, apply_wrap=True):
-    if func is None:
+    if func is None: #support lambda functions
         return lambda f: auth_wrap_ftp(f, apply_wrap=apply_wrap)
 
     '''Authenticates and closes FTP connection around FTP interaction

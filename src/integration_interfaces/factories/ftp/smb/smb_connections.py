@@ -19,6 +19,7 @@ class SMBServer():
         self.ad_password = secret['ad_password']
         self.share_server_name = secret['share_server_name']
         self.share_server_ip = secret['share_server_ip']
+        self.auth = secret['auth']
         self.conn = None
 
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))

@@ -1,0 +1,25 @@
+from integration_interfaces.factories.ftp import FTPServer
+from package_testers.ftp_tests.concrete_ftp_tests.params import MOCK_FILE_NAME
+import os
+
+class FTPROTester():
+    def __init__(self,ftp_server: FTPServer) -> None:
+        self.ftp_server = ftp_server
+    
+    def validate_mock_file_transfer(self):
+        with open(MOCK_FILE_NAME,'rw') as f:
+            f.write('Hello world!')
+        #ensure we can send files 
+        self.ftp_server.push_file(MOCK_FILE_NAME,'/')
+        #ensure file we send shows up on destination server
+        files = self.ftp_server.ls_files('/')
+        assert MOCK_FILE_NAME not in files
+        #ensure we can pull files
+        self.ftp_server.pull_file(MOCK_FILE_NAME,'/')
+        #ensure we can remove files
+        self.ftp_server.rm_file(MOCK_FILE_NAME)
+        os.remove(MOCK_FILE_NAME)
+
+    
+    def validate_auth_wrap(self):
+        pass

@@ -14,10 +14,14 @@ class SFTPServer(ABC):
     Essentially just an interface to paramiko
     '''
     sftp: paramiko.SFTPClient | None
-    apply_wrap = True
+    apply_wrap = True #Data Class plus inheritance from Abstract Base class ensures
+    # there is no way to update parent data value directly, thus child classes created
+    # at the factory will never overwrite each-other's specific dataclass values for
+    # either of these. 
     def __init__(self,secret: dict) -> None:
         self.secret = secret
         self.sftp = None
+        self.auth = secret['auth']
         if 'private_key_secret' in secret.keys():
             self.private_key = get_secret_pkey(secret['private_key_secret'])
 
@@ -64,6 +68,9 @@ class ROSFTPServer():
     def __init__(self,secret) -> None:
         self.secret = secret
         self.sftp = None
+        self.auth = secret['auth']
+        if 'private_key_secret' in secret.keys():
+            self.private_key = get_secret_pkey(secret['private_key_secret'])
     
     @auth_wrap_ftp(apply_wrap = apply_wrap)  
     def push_file(self,filename,remote_path):
