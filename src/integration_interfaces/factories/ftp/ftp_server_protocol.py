@@ -23,3 +23,6 @@ class FTPServer(Protocol):
 
     def rm_file(self,filename):
         '''Deletes Remote File'''
+
+    def info(self):
+        '''Returns info dict'''

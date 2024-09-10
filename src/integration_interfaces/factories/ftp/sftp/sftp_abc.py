@@ -18,10 +18,11 @@ class SFTPServer(ABC):
     # there is no way to update parent data value directly, thus child classes created
     # at the factory will never overwrite each-other's specific dataclass values for
     # either of these. 
-    def __init__(self,secret: dict) -> None:
+    def __init__(self,secret: dict,secret_name) -> None:
         self.secret = secret
         self.sftp = None
         self.auth = secret['auth']
+        self.secret_name = secret_name
         if 'private_key_secret' in secret.keys():
             self.private_key = get_secret_pkey(secret['private_key_secret'])
 
@@ -54,6 +55,13 @@ class SFTPServer(ABC):
 
     def connected(self):
         return self.sftp is not None
+    
+    def info(self):
+        info_dict = {
+            "Endpoint Secret": self.secret_name,
+            "Endpoint auth type": self.auth
+        }
+        return info_dict
 
 @dataclass
 class ROSFTPServer():
@@ -65,10 +73,11 @@ class ROSFTPServer():
     '''
     sftp: paramiko.SFTPClient | None
     apply_wrap = True
-    def __init__(self,secret) -> None:
+    def __init__(self,secret,secret_name) -> None:
         self.secret = secret
         self.sftp = None
         self.auth = secret['auth']
+        self.secret_name = secret_name
         if 'private_key_secret' in secret.keys():
             self.private_key = get_secret_pkey(secret['private_key_secret'])
     
@@ -97,3 +106,10 @@ class ROSFTPServer():
     
     def connected(self):
         return self.sftp is not None
+    
+    def info(self):
+        info_dict = {
+            "Endpoint Secret": self.secret_name,
+            "Endpoint auth type": self.auth
+        }
+        return info_dict

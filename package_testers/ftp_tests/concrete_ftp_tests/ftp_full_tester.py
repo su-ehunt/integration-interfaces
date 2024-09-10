@@ -17,8 +17,23 @@ class FTPFullTester():
         assert MOCK_FILE_NAME in files
         #ensure we can pull files
         self.ftp_server.pull_file(MOCK_FILE_NAME,'/')
+        assert MOCK_FILE_NAME in os.listdir()
         #ensure we can remove files
         self.ftp_server.rm_file(MOCK_FILE_NAME)
+        updated_files = self.ftp_server.ls_files('/'+ MOCK_FILE_NAME)
+        assert MOCK_FILE_NAME not in updated_files
     
     def validate_auth_wrap(self):
         pass
+    
+    def run_tests(self):
+        self.validate_mock_file_transfer()
+        self.validate_auth_wrap()
+
+    def info(self):
+        '''Return a Dict of information about this unit test'''
+        info_dict = {
+            "Concrete Tester Class": "FTP Full Tester",
+            "Endpoint Info": self.ftp_server.info()
+        }
+        return info_dict

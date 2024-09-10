@@ -12,3 +12,6 @@ class FTPUnitTester(Protocol):
     def run_tests(self):
         '''Run all the tests. Gives consistent interface for tests
         of different endpoint types'''
+
+    def info(self):
+        '''Return a Dict of information about this unit test'''

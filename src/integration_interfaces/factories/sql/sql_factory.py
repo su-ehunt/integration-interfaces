@@ -23,7 +23,7 @@ def sql_factory(db_secret,cred_secret) -> type[SQLServer]:
         log.exception(e)
         raise e
     try:
-        return unauath_serv.load_auth(db_auth)
+        return unauath_serv.load_auth(db_auth,cred_secret)
     except Exception as e:
         log.exception(e)
         raise e
