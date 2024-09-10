@@ -7,13 +7,21 @@ packages = ["src/integration_interfaces"]
 
 [project]
 name = "integration_interfaces"
-version = "0.0.19"
+version = "0.0.20"
 authors = [
   { name="Elizabeth Hunt", email="ehunt@seattleu.edu" },
 ]
 description = "Interface Connectors for Integrations"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
+dependencies = [
+  "pandas",
+  "pysmb",
+  "paramiko",
+  "pyodbc",
+  "tenacity",
+  "boto3",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",

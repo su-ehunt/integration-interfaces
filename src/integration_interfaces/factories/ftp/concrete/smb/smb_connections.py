@@ -26,19 +26,25 @@ class SMBServer():
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):
         '''Establishes SMB connection'''
+        log.info(f"Establishing SMB Connection to {self.secret_name}")
         conn = SMBConnection(self.ad_username, self.ad_password, self.ad_username, self.share_server_name, use_ntlm_v2=True)
         assert conn.connect(self.share_server_ip, 139)
+        log.info("SMB Connection Established!")
    
     def close_connection(self):
         '''Close SMB Connection'''
+        log.info(f"Closing Connection to {self.secret_name}")
         self.conn.close()
+        log.info("Connection Closed")
     
     def connected(self):
+        log.info("Checking if connected")
         return self.conn is not None
 
     @auth_wrap_ftp(apply_wrap = apply_wrap)   
     def push_file(self,filename,remote_path):
         """Push File over SMB"""
+        log.info("")
         with open(filename, 'rb') as file_obj:
             self.conn.storeFile(remote_path, remote_path + filename, file_obj)
 
