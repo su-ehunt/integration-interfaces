@@ -4,3 +4,6 @@ class EndpointUnitTester(Protocol):
 
     def run_tests(self):
         '''Runs unit tests'''
+
+    def info(self):
+        '''Endpoint Information'''

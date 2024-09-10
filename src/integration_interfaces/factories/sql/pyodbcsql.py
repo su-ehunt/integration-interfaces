@@ -13,17 +13,21 @@ class Pyodbc18SQLAuthSQLServer():
     cnxn: pyodbc.Connection | None
     cursor: pyodbc.Cursor | None
 
-    def __init__(self,secrets) -> None:
+    def __init__(self,secrets,db_secret_name) -> None:
         self.db_database = secrets['db_database']
         self.db_server = secrets['db_server']
         self.cnxn = None
         self.cursor = None
         self.db_username = None
         self.db_password = None
+        self.auth = secrets['auth']
+        self.db_secret_name = db_secret_name
+        self.creds_secret_name = None
 
-    def load_auth(self,creds):
+    def load_auth(self,creds,creds_secret_name):
         self.db_username = creds['db_username']
         self.db_password = creds['db_password']
+        self.creds_secret_name = creds_secret_name
 
     def verify_auth(self):
         try:
@@ -76,3 +80,11 @@ class Pyodbc18SQLAuthSQLServer():
 
 
         return data
+    
+    def info(self):
+        info_dict = {
+            "Endpoint DB Secret": self.db_secret_name,
+            "Endpoint Cred Secret": self.creds_secret_name,
+            "Endpoint auth type": self.auth
+        }
+        return info_dict

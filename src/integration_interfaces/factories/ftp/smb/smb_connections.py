@@ -14,12 +14,13 @@ class SMBServer():
 
     conn: SMBConnection | None
     apply_wrap = True
-    def __init__(self,secret):
+    def __init__(self,secret,secret_name):
         self.ad_username = secret['ad_username']
         self.ad_password = secret['ad_password']
         self.share_server_name = secret['share_server_name']
         self.share_server_ip = secret['share_server_ip']
         self.auth = secret['auth']
+        self.secret_name = secret_name
         self.conn = None
 
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
@@ -57,6 +58,13 @@ class SMBServer():
         '''Deletes Remote File'''
         self.conn.deleteFiles(remote_path, filename)
 
+    def info(self):
+        info_dict = {
+            "Endpoint Secret": self.secret_name,
+            "Endpoint auth type": self.auth
+        }
+        return info_dict
+
 
 class ROSMBServer(SMBServer):
     """
@@ -93,3 +101,9 @@ class ROSMBServer(SMBServer):
         '''Deletes Remote File'''
         log.info("Skipping File Deletion Operation during Read Only Session")
 
+    def info(self):
+        info_dict = {
+            "Endpoint Secret": self.secret_name,
+            "Endpoint auth type": self.auth
+        }
+        return info_dict

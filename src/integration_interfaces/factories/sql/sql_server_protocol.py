@@ -4,7 +4,7 @@ from pandas import DataFrame
 class SQLServer(Protocol):
     """Base protocol class for SQL servers"""
     
-    def load_auth(self,creds) -> None:
+    def load_auth(self,creds,cred_secret_name) -> None:
         """Loads in authorization information"""
 
     def open_sql_connection(self) -> None:
@@ -18,3 +18,6 @@ class SQLServer(Protocol):
 
     def get_sql_data_pd(self,sql) -> DataFrame:
         """Returns SQL query result as Pandas DataFrame"""
+    
+    def info(self):
+        """Returns dict describing endpoint"""

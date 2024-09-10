@@ -23,3 +23,15 @@ class FTPROTester():
     
     def validate_auth_wrap(self):
         pass
+
+    def run_tests(self):
+        self.validate_mock_file_transfer()
+        self.validate_auth_wrap()
+
+    def info(self):
+        '''Return a Dict of information about this unit test'''
+        info_dict = {
+            "Concrete Tester Class": "FTP RO Tester",
+            "Endpoint Info": self.ftp_server.info()
+        }
+        return info_dict

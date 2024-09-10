@@ -18,7 +18,7 @@ def ftp_factory(secret_name) -> type[FTPServer]:
         log.exception(e)
         raise e
     try:
-        return ftp_method(secret)
+        return ftp_method(secret,secret_name)
     except Exception as e:
         log.error(f'Failed to initialize FTP class. Make sure the secret stored in {secret_name}\
                   has all the required fields for initiating a {auth} FTP server.')
