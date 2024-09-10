@@ -81,7 +81,7 @@ class SharePoint:
         log.info('Successfully uploaded ' + file_name + ' to SharePoint')
 
 
-    def delete_file(self, timeInDays):
+    def clean_old_files(self, timeInDays):
         log.info('Connecting to SharePoint site to delete')
         sharepoint_relative_url, ctx = self.auth()
 

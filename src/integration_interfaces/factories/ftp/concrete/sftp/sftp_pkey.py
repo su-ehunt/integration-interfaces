@@ -1,5 +1,6 @@
-from integration_interfaces.factories.ftp.sftp.sftp_abc \
+from integration_interfaces.factories.ftp.concrete.sftp.sftp_abc \
     import SFTPServer, ROSFTPServer
+from integration_interfaces.logging import log
 from tenacity import retry, stop_after_attempt, wait_exponential
 import paramiko
 from io import StringIO
@@ -16,13 +17,16 @@ class SFTPPrivateKey(SFTPServer):
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):
+        log.info(f"Establishing connection to {self.secret_name}")
         sftp_host = self.secret['sftp_host']
         sftp_port = int(self.secret['sftp_port'])
         sftp_user = self.secret['sftp_user']
         rsa_key = paramiko.RSAKey.from_private_key(StringIO(self.private_key))
 
         transport = paramiko.Transport((sftp_host, sftp_port))
+        log.info("Transport Object Established, moving onto authentication...")
         transport.connect(hostkey=None, username=sftp_user, pkey=rsa_key)
+        log.info("Authenticated!")
         self.sftp = paramiko.SFTPClient.from_transport(transport)
 
 class ROSFTPPrivateKey(ROSFTPServer,SFTPPrivateKey):
