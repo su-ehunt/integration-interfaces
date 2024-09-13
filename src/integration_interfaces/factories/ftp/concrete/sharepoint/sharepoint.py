@@ -1,4 +1,3 @@
-import logging
 import os
 import requests
 from office365.runtime.auth.authentication_context import AuthenticationContext
@@ -8,11 +7,8 @@ from datetime import date, timedelta
 import datetime
 from src.integration_interfaces.aws.secrets_manager import get_secret_json, get_secret
 from tenacity import retry, stop_after_attempt, wait_exponential
+from integration_interfaces.logging import log
 
-# Set logging variables
-logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO'),
-                    format='%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s')
-log = logging.getLogger('logger')
 
 canvas_secret_name = 'Canvas_SIS'
 ms_secret_name = 'Microsoft_Sharepoint_Auth'
