@@ -8,12 +8,7 @@ from io import StringIO
 
 class SFTPPrivateKey(SFTPServer):
     '''
-    Maxient
-    Follett
-    CLSS
-    Fusion
-    EverSpring
-    Get Inclusive
+    SFTP Private Key Class 
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):

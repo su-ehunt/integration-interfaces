@@ -6,10 +6,7 @@ from integration_interfaces.logging import log
 
 class SFTPSSHAuth(SFTPServer):
     '''
-    TutorTrac
-    Slate
-    Colleague
-
+    SFTP Class for sftp connections that need to be over a SSH connection
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):

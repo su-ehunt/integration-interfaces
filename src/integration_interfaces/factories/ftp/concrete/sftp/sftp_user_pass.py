@@ -7,10 +7,7 @@ from integration_interfaces.logging import log
 
 class SFTPUserPassword(SFTPServer):
     '''
-    TutorTrac
-    Slate
-    Colleague
-
+    SFTP Concrete Class for User/Password Authentication
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):
@@ -27,7 +24,7 @@ class SFTPUserPassword(SFTPServer):
         if self.base_dir is not None:
             log.info(f"Moving SFTP Cursor to Base Directory {self.base_dir}")
             self.sftp.chdir(self.base_dir)
-            
+
 class ROSFTPUserPassword(ROSFTPServer,SFTPUserPassword):
 
     def establish_connection(self):
