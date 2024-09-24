@@ -8,12 +8,7 @@ from io import StringIO
 
 class SFTPPrivateKey(SFTPServer):
     '''
-    Maxient
-    Follett
-    CLSS
-    Fusion
-    EverSpring
-    Get Inclusive
+    SFTP Private Key Class 
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):
@@ -28,6 +23,9 @@ class SFTPPrivateKey(SFTPServer):
         transport.connect(hostkey=None, username=sftp_user, pkey=rsa_key)
         log.info("Authenticated!")
         self.sftp = paramiko.SFTPClient.from_transport(transport)
+        if self.base_dir is not None:
+            log.info(f"Moving SFTP Cursor to Base Directory {self.base_dir}")
+            self.sftp.chdir(self.base_dir)
 
 class ROSFTPPrivateKey(ROSFTPServer,SFTPPrivateKey):
 
