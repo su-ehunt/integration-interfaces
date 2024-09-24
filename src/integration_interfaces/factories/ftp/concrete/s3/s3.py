@@ -1,8 +1,10 @@
 from integration_interfaces.aws import session
 from integration_interfaces.logging import log
+from integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
 
 class S3FTP():
 
+    apply_wrap = True
 
     def __init__(self,secret,secret_name) -> None:
         self.secret_name =secret_name
@@ -27,25 +29,29 @@ class S3FTP():
     def connected(self):
         '''Returns whether or not the FTP connection is established'''
         return self.s3 is not None
-
+    
+    @auth_wrap_ftp(apply_wrap = apply_wrap)
     def push_file(self,filename,remote_path):
         '''Push File to FTP'''
         log.info(f"Uploading {filename} to {remote_path} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
         self.s3.meta.client.upload_file(filename, self.bucket_name, remote_path)
 
+    @auth_wrap_ftp(apply_wrap = apply_wrap)
     def pull_file(self,filename,remote_path):
         '''Pul File from FTP'''
         log.info(f"Downloading {remote_path} to {filename} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
         self.s3.meta.client.download_file(filename, self.bucket_name, remote_path)
 
+    @auth_wrap_ftp(apply_wrap = apply_wrap)
     def ls_files(self,remote_path):
         '''List Files in Directory'''
         log.warning("Doing a list operation in a bucket store is potentially costly\
                     Please be aware of when you invoke an ls like operation on bucket storage.")
         return [self.bucket.objects.all()]
 
+    @auth_wrap_ftp(apply_wrap = apply_wrap)
     def rm_file(self,filename):
         '''Deletes Remote File'''
         log.info(f"Deleting {filename} in S3 Bucket \
