@@ -12,20 +12,25 @@ class SFTPPrivateKey(SFTPServer):
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):
-        log.info(f"Establishing connection to {self.secret_name}")
-        sftp_host = self.secret['sftp_host']
-        sftp_port = int(self.secret['sftp_port'])
-        sftp_user = self.secret['sftp_user']
-        rsa_key = paramiko.RSAKey.from_private_key(StringIO(self.private_key))
+        try:
+            log.info(f"Establishing connection to {self.secret_name}")
+            sftp_host = self.secret['sftp_host']
+            sftp_port = int(self.secret['sftp_port'])
+            sftp_user = self.secret['sftp_user']
+            rsa_key = paramiko.RSAKey.from_private_key(StringIO(self.private_key))
+            log.info("Loaded RSA Key object")
+            transport = paramiko.Transport((sftp_host, sftp_port))
+            log.info("Transport Object Established, moving onto authentication...")
+            transport.connect(hostkey=None, username=sftp_user, pkey=rsa_key)
+            log.info("Authenticated!")
+            self.sftp = paramiko.SFTPClient.from_transport(transport)
+            if self.base_dir is not None:
+                log.info(f"Moving SFTP Cursor to Base Directory {self.base_dir}")
+                self.sftp.chdir(self.base_dir)
+        except Exception as e:
+            log.exception(e)
+            raise(e)
 
-        transport = paramiko.Transport((sftp_host, sftp_port))
-        log.info("Transport Object Established, moving onto authentication...")
-        transport.connect(hostkey=None, username=sftp_user, pkey=rsa_key)
-        log.info("Authenticated!")
-        self.sftp = paramiko.SFTPClient.from_transport(transport)
-        if self.base_dir is not None:
-            log.info(f"Moving SFTP Cursor to Base Directory {self.base_dir}")
-            self.sftp.chdir(self.base_dir)
 
 class ROSFTPPrivateKey(ROSFTPServer,SFTPPrivateKey):
 
