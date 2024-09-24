@@ -60,7 +60,10 @@ class SFTPServer(ABC):
 
     def close_connection(self):
         log.info(f"Closing Connection to {self.secret_name}")
-        return self.sftp.close()
+        if self.connected():
+            self.sftp.close()
+        else:
+            pass
 
     def connected(self):
         log.info(f"Checking if we are connected to {self.secret_name}")
