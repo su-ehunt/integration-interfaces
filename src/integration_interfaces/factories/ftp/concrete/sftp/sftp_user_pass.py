@@ -24,7 +24,10 @@ class SFTPUserPassword(SFTPServer):
         transport.connect(username=sftp_user,password=sftp_pass)
         log.info("Authenticated!")
         self.sftp = paramiko.SFTPClient.from_transport(transport)
-
+        if self.base_dir is not None:
+            log.info(f"Moving SFTP Cursor to Base Directory {self.base_dir}")
+            self.sftp.chdir(self.base_dir)
+            
 class ROSFTPUserPassword(ROSFTPServer,SFTPUserPassword):
 
     def establish_connection(self):

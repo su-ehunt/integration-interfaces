@@ -23,6 +23,10 @@ class SFTPServer(ABC):
         self.sftp = None
         self.auth = secret['auth']
         self.secret_name = secret_name
+        if 'base_dir' in secret.keys():
+            self.base_dir = secret['base_dir']
+        else:
+            self.base_dir = None
         if 'private_key_secret' in secret.keys():
             self.private_key = get_secret_pkey(secret['private_key_secret'])
 

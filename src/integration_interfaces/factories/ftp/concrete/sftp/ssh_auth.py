@@ -26,6 +26,9 @@ class SFTPSSHAuth(SFTPServer):
                            password=sftp_pass)
         log.info("Authenticated!")
         self.sftp = ssh_client.open_sftp()
+        if self.base_dir is not None:
+            log.info(f"Moving SFTP Cursor to Base Directory {self.base_dir}")
+            self.sftp.chdir(self.base_dir)
 
 class ROSFTPSSHAuth(ROSFTPServer,SFTPSSHAuth):
 
