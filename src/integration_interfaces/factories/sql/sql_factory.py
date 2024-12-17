@@ -4,6 +4,10 @@ from integration_interfaces.factories.sql.sql_server_protocol import SQLServer
 from integration_interfaces.factories.sql.sql_protocols import SQL_PROTOCOLS
 
 def sql_factory(db_secret,cred_secret) -> type[SQLServer]:
+    """
+    SQL Factory takes in a secret describing the database in the first 
+    argument, and connection credentials in the second, and returns a sql server object
+    """
     db_connection_vals = get_secret_json(db_secret)
     db_auth = get_secret_json(cred_secret)
     auth = db_connection_vals["auth"].lower()
