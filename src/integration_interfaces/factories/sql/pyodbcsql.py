@@ -45,17 +45,17 @@ class Pyodbc18SQLAuthSQLServer():
             cnxn = pyodbc.connect(
                 'DRIVER={ODBC Driver 18 for SQL Server};SERVER=' \
                     + self.db_server + ',1433;DATABASE=' + self.db_database \
-                    + ';uid=' + self.db_username + ';pwd=' + self.db_password)
+                    + ';uid=' + self.db_username + ';pwd=' + self.db_password + ';Encrypt=no;TrustServerCertificate=yes')
             cursor = cnxn.cursor()
+            self.cnxn = cnxn
+            self.cursor = cursor
             log.debug('Successfully connected to ' + self.db_database)
         except Exception as e:
             log.error(e)
             raise e
-    
-        return cnxn, cursor
+
     
     def close_sql_connection(self) -> None:
-        self.cnxn.commit()
         self.cnxn.close()
         self.cursor = None
 
