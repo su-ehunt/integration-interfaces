@@ -1,4 +1,4 @@
-from integration_interfaces.aws import session
+from integration_interfaces.aws import session, external_session_factory
 from integration_interfaces.logging import log
 
 class S3FTP():
@@ -11,14 +11,29 @@ class S3FTP():
         self.auth = secret['auth']
         self.s3 = None
         self.bucket = None
+        try:
+            self.key_id = secret['access_key_id']
+        except:
+            self.key_id = None
+        try:
+            self.access_key = secret['access_key_secret']
+        except:
+            self.access_key = None
+        
         self.establish_connection()
     
     def establish_connection(self):
         '''Initialize connection'''
         if not self.connected():
-            log.info(f"Connecting to S3 Bucket {self.bucket_name}")
-            self.s3 = session.resource('s3')
-            self.bucket = self.s3.Bucket(self.bucket_name)
+            if self.key_id is None:   
+                log.info(f"Connecting to S3 Bucket {self.bucket_name}")
+                self.s3 = session.resource('s3')
+                self.bucket = self.s3.Bucket(self.bucket_name)
+            else:
+                log.info(f"Connecting to external S3 Bucket {self.bucket_name}")
+                ext_session = external_session_factory(self.access_key,self.key_id)
+                self.s3 = ext_session.resource('s3')
+                self.bucket = self.s3.Bucket(self.bucket_name)
 
     def close_connection(self):
         '''Closes FTP connection'''
@@ -39,13 +54,17 @@ class S3FTP():
         '''Pul File from FTP'''
         log.info(f"Downloading {remote_path} to {filename} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
-        self.s3.meta.client.download_file(filename, self.bucket_name, remote_path)
+        #self.s3.meta.client.download_file(filename, self.bucket_name, remote_path)
+        self.bucket.download_file(remote_path,filename)
 
     def ls_files(self,remote_path):
         '''List Files in Directory'''
-        log.warning("Doing a list operation in a bucket store is potentially costly\
-                    Please be aware of when you invoke an ls like operation on bucket storage.")
-        return [self.bucket.objects.all()]
+        #log.warning("Doing a list operation in a bucket store is potentially costly\
+        #            Please be aware of when you invoke an ls like operation on bucket storage.")
+        all_obs = self.bucket.objects.all()
+        all_files =  [ob.key for ob in all_obs]
+        filtered_files = [file for file in all_files if file.startswith(remote_path)]
+        return filtered_files
 
     def rm_file(self,filename):
         '''Deletes Remote File'''
