@@ -1,4 +1,4 @@
-from integration_interfaces.aws import session
+from integration_interfaces.aws import session, external_session_factory
 from integration_interfaces.logging import log
 
 class S3FTP():
@@ -25,9 +25,15 @@ class S3FTP():
     def establish_connection(self):
         '''Initialize connection'''
         if not self.connected():
-            log.info(f"Connecting to S3 Bucket {self.bucket_name}")
-            self.s3 = session.resource('s3')
-            self.bucket = self.s3.Bucket(self.bucket_name)
+            if self.key_id is None:   
+                log.info(f"Connecting to S3 Bucket {self.bucket_name}")
+                self.s3 = session.resource('s3')
+                self.bucket = self.s3.Bucket(self.bucket_name)
+            else:
+                log.info(f"Connecting to external S3 Bucket {self.bucket_name}")
+                ext_session = external_session_factory(self.access_key,self.key_id)
+                self.s3 = ext_session.resource('s3')
+                self.bucket = self.s3.Bucket(self.bucket_name)
 
     def close_connection(self):
         '''Closes FTP connection'''
