@@ -39,7 +39,8 @@ class S3FTP():
         '''Pul File from FTP'''
         log.info(f"Downloading {remote_path} to {filename} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
-        self.s3.meta.client.download_file(filename, self.bucket_name, remote_path)
+        #self.s3.meta.client.download_file(filename, self.bucket_name, remote_path)
+        self.bucket.download_file(remote_path,filename)
 
     def ls_files(self,remote_path):
         '''List Files in Directory'''
