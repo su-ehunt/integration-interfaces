@@ -63,7 +63,6 @@ class S3FTP():
         #            Please be aware of when you invoke an ls like operation on bucket storage.")
         all_obs = self.bucket.objects.all()
         all_files =  [ob.key for ob in all_obs]
-        print(all_files)
         filtered_files = [file for file in all_files if file.startswith(remote_path)]
         return filtered_files
 
