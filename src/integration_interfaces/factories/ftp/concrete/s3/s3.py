@@ -11,6 +11,15 @@ class S3FTP():
         self.auth = secret['auth']
         self.s3 = None
         self.bucket = None
+        try:
+            self.key_id = secret['access_key_id']
+        except:
+            self.key_id = None
+        try:
+            self.access_key = secret['access_key_secret']
+        except:
+            self.access_key = None
+        
         self.establish_connection()
     
     def establish_connection(self):
