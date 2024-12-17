@@ -20,7 +20,7 @@ def sql_factory(db_secret,cred_secret) -> type[SQLServer]:
         log.exception(e)
         raise e
     try:
-        unauath_serv = sql_method(db_secret)
+        unauath_serv = sql_method(db_connection_vals, db_secret)
     except Exception as e:
         log.error(f'Failed to initialize SQL class. Make sure the secret stored in {db_secret}\
                   has all the required fields for initiating a {auth} SQL server.')
