@@ -44,9 +44,13 @@ class S3FTP():
 
     def ls_files(self,remote_path):
         '''List Files in Directory'''
-        log.warning("Doing a list operation in a bucket store is potentially costly\
-                    Please be aware of when you invoke an ls like operation on bucket storage.")
-        return [self.bucket.objects.all()]
+        #log.warning("Doing a list operation in a bucket store is potentially costly\
+        #            Please be aware of when you invoke an ls like operation on bucket storage.")
+        all_obs = self.bucket.objects.all()
+        all_files =  [ob.key for ob in all_obs]
+        print(all_files)
+        filtered_files = [file for file in all_files if file.startswith(remote_path)]
+        return filtered_files
 
     def rm_file(self,filename):
         '''Deletes Remote File'''
