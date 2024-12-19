@@ -66,12 +66,30 @@ class S3FTP():
     def ls_files(self,remote_path):
         '''List Files in Directory'''
         remote_path = self.base_dir + remote_path
+        file_depth = len(remote_path.split('/'))
         log.warning("Doing a list operation in a bucket store is potentially costly\
                     Please be aware of when you invoke an ls like operation on bucket storage.")
+        log.info(f"Listing items in {remote_path} in \
+                 {self.bucket_name} per config in {self.secret_name}")
         all_obs = self.bucket.objects.all()
         all_files =  [ob.key for ob in all_obs]
         filtered_files = [file for file in all_files if file.startswith(remote_path)]
-        return filtered_files
+        
+        #Figure out which results are files at the correct depth
+        file_results = [file for file in filtered_files if file[-1]!='/' and len(file.split('/')) == file_depth]
+
+        #Format file results
+        formatted_files = [file.split('/')[file_depth-1] for file in file_results]
+
+        #Figure out which of the results are directories at the correct file depth 
+        #(directories will have exactly one more slash than the directory being searched)
+        dir_results = [dir for dir in filtered_files if dir[-1]=='/' and len(dir.split('/')) == file_depth+1]
+
+        #Format Directory Results
+        formatted_dirs = [dir.split('/')[file_depth-1] + '/' for dir in dir_results]
+
+        #Combine file and directory results
+        return formatted_files + formatted_dirs
 
     def rm_file(self,filename):
         '''Deletes Remote File'''
