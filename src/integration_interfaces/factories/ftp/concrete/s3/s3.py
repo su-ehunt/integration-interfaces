@@ -5,12 +5,16 @@ class S3FTP():
 
     apply_wrap = True
 
-    def __init__(self,secret,secret_name) -> None:
+    def __init__(self,secret: dict,secret_name) -> None:
         self.secret_name =secret_name
         self.bucket_name = secret['bucket']
         self.auth = secret['auth']
         self.s3 = None
         self.bucket = None
+        if 'base_dir' in secret.keys():
+            self.base_dir = secret['base_dir']
+        else:
+            self.base_dir = ''
         try:
             self.key_id = secret['access_key_id']
         except:
@@ -46,12 +50,14 @@ class S3FTP():
     
     def push_file(self,filename,remote_path):
         '''Push File to FTP'''
+        remote_path = self.base_dir + remote_path
         log.info(f"Uploading {filename} to {remote_path} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
         self.s3.meta.client.upload_file(filename, self.bucket_name, remote_path)
 
     def pull_file(self,filename,remote_path):
         '''Pul File from FTP'''
+        remote_path = self.base_dir + remote_path
         log.info(f"Downloading {remote_path} to {filename} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
         #self.s3.meta.client.download_file(filename, self.bucket_name, remote_path)
@@ -61,6 +67,7 @@ class S3FTP():
         '''List Files in Directory'''
         #log.warning("Doing a list operation in a bucket store is potentially costly\
         #            Please be aware of when you invoke an ls like operation on bucket storage.")
+        remote_path = self.base_dir + remote_path
         all_obs = self.bucket.objects.all()
         all_files =  [ob.key for ob in all_obs]
         filtered_files = [file for file in all_files if file.startswith(remote_path)]
@@ -68,6 +75,7 @@ class S3FTP():
 
     def rm_file(self,filename):
         '''Deletes Remote File'''
+        remote_path = self.base_dir + remote_path
         log.info(f"Deleting {filename} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
         obj = self.s3.Object(self.bucket_name, filename)
