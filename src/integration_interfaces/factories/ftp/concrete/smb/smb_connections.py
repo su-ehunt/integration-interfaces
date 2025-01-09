@@ -18,6 +18,7 @@ class SMBServer():
         self.ad_username = secret['ad_username']
         self.ad_password = secret['ad_password']
         self.share_server_name = secret['share_server_name']
+        self.share_name = secret['share_name']
         self.share_server_ip = secret['share_server_ip']
         self.auth = secret['auth']
         self.secret_name = secret_name
@@ -28,6 +29,7 @@ class SMBServer():
         '''Establishes SMB connection'''
         log.info(f"Establishing SMB Connection to {self.secret_name}")
         conn = SMBConnection(self.ad_username, self.ad_password, self.ad_username, self.share_server_name, use_ntlm_v2=True)
+        self.conn = conn
         assert conn.connect(self.share_server_ip, 139)
         log.info("SMB Connection Established!")
    
@@ -46,7 +48,7 @@ class SMBServer():
         """Push File over SMB"""
         log.info("")
         with open(filename, 'rb') as file_obj:
-            self.conn.storeFile(remote_path, remote_path + filename, file_obj)
+            self.conn.storeFile(self.share_name, remote_path, file_obj)
 
     @auth_wrap_ftp(apply_wrap = apply_wrap)
     def pull_file(self,filename,remote_path):
