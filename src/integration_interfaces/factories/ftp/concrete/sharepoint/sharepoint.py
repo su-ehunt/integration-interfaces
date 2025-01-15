@@ -32,7 +32,6 @@ ms_secrets = {
     "scopes": "",
 }
 
-class SharePoint:
 
     def __init__(self):
 
@@ -54,6 +53,7 @@ class SharePoint:
 
         clss_sp_pem = get_secret(client, self.sharepoint_site_secrets['sharepoint_cert'])
         with open(cert_path, "w",
+class SharePointFTP():
                   newline='') as temp_pem:
             temp_pem.write(clss_sp_pem)
 
