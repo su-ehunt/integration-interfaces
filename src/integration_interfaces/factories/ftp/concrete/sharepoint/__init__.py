@@ -1,0 +1,1 @@
+from integration_interfaces.factories.ftp.concrete.sharepoint.sharepoint import SharePointFTP
