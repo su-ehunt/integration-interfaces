@@ -1,5 +1,6 @@
 import os
 import requests
+from tenacity import retry, stop_after_attempt, wait_exponential
 from office365.runtime.auth.authentication_context import AuthenticationContext
 from office365.sharepoint.client_context import ClientContext
 from office365.sharepoint.files.file import File
@@ -75,6 +76,7 @@ class SharePoint:
         return self.ctx is not None
 
 
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def pull_file(self,file_name,remote_path):
 
         if not self.connected():
@@ -96,6 +98,7 @@ class SharePoint:
 
 
     def push_file(self, filename, file_content, target_folder_url):
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
         '''Push File to FTP'''
         if not self.connected():
             self.establish_connection()
@@ -110,6 +113,7 @@ class SharePoint:
         log.info('Successfully uploaded ' + filename + ' to SharePoint')
 
 
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def ls_files(self, target_folder_url):
 
         ListofItems = []
@@ -167,6 +171,7 @@ class SharePoint:
 
 
     def rm_file(self, relativeUrl):
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
         try:
             if not self.connected():
                 self.establish_connection()
