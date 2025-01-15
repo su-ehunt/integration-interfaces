@@ -136,7 +136,7 @@ class SharePoint:
         return ListofItems
 
 
-    def _filter_files(self, target_folder_url):
+    def filter_files(self, target_folder_url):
         log.info('Connecting to SharePoint site to delete')
 
         try:
