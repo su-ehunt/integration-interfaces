@@ -93,7 +93,7 @@ class S3FTP():
 
     def rm_file(self,filename):
         '''Deletes Remote File'''
-        remote_path = self.base_dir + remote_path
+        filename = self.base_dir + filename
         log.info(f"Deleting {filename} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
         obj = self.s3.Object(self.bucket_name, filename)
