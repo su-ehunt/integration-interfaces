@@ -6,10 +6,7 @@ from integration_interfaces.logging import log
 
 class SFTPSSHAuth(SFTPServer):
     '''
-    TutorTrac
-    Slate
-    Colleague
-
+    SFTP Class for sftp connections that need to be over a SSH connection
     '''
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):
@@ -26,6 +23,9 @@ class SFTPSSHAuth(SFTPServer):
                            password=sftp_pass)
         log.info("Authenticated!")
         self.sftp = ssh_client.open_sftp()
+        if self.base_dir is not None:
+            log.info(f"Moving SFTP Cursor to Base Directory {self.base_dir}")
+            self.sftp.chdir(self.base_dir)
 
 class ROSFTPSSHAuth(ROSFTPServer,SFTPSSHAuth):
 

@@ -1,23 +1,43 @@
-from integration_interfaces.aws import session
+from integration_interfaces.aws import session, external_session_factory
 from integration_interfaces.logging import log
 
 class S3FTP():
 
+    apply_wrap = True
 
-    def __init__(self,secret,secret_name) -> None:
+    def __init__(self,secret: dict,secret_name) -> None:
         self.secret_name =secret_name
         self.bucket_name = secret['bucket']
         self.auth = secret['auth']
         self.s3 = None
         self.bucket = None
+        if 'base_dir' in secret.keys():
+            self.base_dir = secret['base_dir']
+        else:
+            self.base_dir = ''
+        try:
+            self.key_id = secret['access_key_id']
+        except:
+            self.key_id = None
+        try:
+            self.access_key = secret['access_key_secret']
+        except:
+            self.access_key = None
+        
         self.establish_connection()
     
     def establish_connection(self):
         '''Initialize connection'''
         if not self.connected():
-            log.info(f"Connecting to S3 Bucket {self.bucket_name}")
-            self.s3 = session.resource('s3')
-            self.bucket = self.s3.Bucket(self.bucket_name)
+            if self.key_id is None:   
+                log.info(f"Connecting to S3 Bucket {self.bucket_name}")
+                self.s3 = session.resource('s3')
+                self.bucket = self.s3.Bucket(self.bucket_name)
+            else:
+                log.info(f"Connecting to external S3 Bucket {self.bucket_name}")
+                ext_session = external_session_factory(self.access_key,self.key_id)
+                self.s3 = ext_session.resource('s3')
+                self.bucket = self.s3.Bucket(self.bucket_name)
 
     def close_connection(self):
         '''Closes FTP connection'''
@@ -27,27 +47,53 @@ class S3FTP():
     def connected(self):
         '''Returns whether or not the FTP connection is established'''
         return self.s3 is not None
-
+    
     def push_file(self,filename,remote_path):
         '''Push File to FTP'''
+        remote_path = self.base_dir + remote_path
         log.info(f"Uploading {filename} to {remote_path} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
         self.s3.meta.client.upload_file(filename, self.bucket_name, remote_path)
 
     def pull_file(self,filename,remote_path):
         '''Pul File from FTP'''
+        remote_path = self.base_dir + remote_path
         log.info(f"Downloading {remote_path} to {filename} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
-        self.s3.meta.client.download_file(filename, self.bucket_name, remote_path)
+        #self.s3.meta.client.download_file(filename, self.bucket_name, remote_path)
+        self.bucket.download_file(remote_path,filename)
 
     def ls_files(self,remote_path):
         '''List Files in Directory'''
+        remote_path = self.base_dir + remote_path
+        file_depth = len(remote_path.split('/'))
         log.warning("Doing a list operation in a bucket store is potentially costly\
                     Please be aware of when you invoke an ls like operation on bucket storage.")
-        return [self.bucket.objects.all()]
+        log.info(f"Listing items in {remote_path} in \
+                 {self.bucket_name} per config in {self.secret_name}")
+        all_obs = self.bucket.objects.all()
+        all_files =  [ob.key for ob in all_obs]
+        filtered_files = [file for file in all_files if file.startswith(remote_path)]
+        
+        #Figure out which results are files at the correct depth
+        file_results = [file for file in filtered_files if file[-1]!='/' and len(file.split('/')) == file_depth]
+
+        #Format file results
+        formatted_files = [file.split('/')[file_depth-1] for file in file_results]
+
+        #Figure out which of the results are directories at the correct file depth 
+        #(directories will have exactly one more slash than the directory being searched)
+        dir_results = [dir for dir in filtered_files if dir[-1]=='/' and len(dir.split('/')) == file_depth+1]
+
+        #Format Directory Results
+        formatted_dirs = [dir.split('/')[file_depth-1] + '/' for dir in dir_results]
+
+        #Combine file and directory results
+        return formatted_files + formatted_dirs
 
     def rm_file(self,filename):
         '''Deletes Remote File'''
+        remote_path = self.base_dir + remote_path
         log.info(f"Deleting {filename} in S3 Bucket \
                  {self.bucket_name} per config in {self.secret_name}")
         obj = self.s3.Object(self.bucket_name, filename)
