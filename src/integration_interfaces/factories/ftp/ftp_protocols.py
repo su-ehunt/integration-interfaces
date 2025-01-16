@@ -4,7 +4,7 @@ from integration_interfaces.factories.ftp.concrete import \
     ROSFTPPrivateKey,ROSFTPUserPassword,\
     SFTPSSHAuth,ROSFTPSSHAuth,\
     SMBServer,ROSMBServer,\
-    S3FTP
+    S3FTP, SharePointFTP
 from integration_interfaces.factories.ftp.ftp_server_protocol import FTPServer
 
 FTP_PROTOCOLS: Dict[str,type[FTPServer]] = {
@@ -16,5 +16,6 @@ FTP_PROTOCOLS: Dict[str,type[FTPServer]] = {
     "ro_sftp_ssh": ROSFTPSSHAuth,
     "smb": SMBServer,
     "ro_smb": ROSMBServer,
-    "s3": S3FTP
+    "s3": S3FTP,
+    "sharepoint": SharePointFTP
 }

@@ -7,4 +7,4 @@ from integration_interfaces.factories.ftp.concrete \
         SFTPUserPassword, ROSFTPUserPassword,\
         SFTPSSHAuth, ROSFTPSSHAuth,\
         SMBServer, ROSMBServer,\
-        S3FTP
+        S3FTP, SharePointFTP
