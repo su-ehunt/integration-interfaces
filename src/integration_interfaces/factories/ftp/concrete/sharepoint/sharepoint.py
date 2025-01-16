@@ -7,7 +7,7 @@ from office365.sharepoint.files.file import File
 
 from datetime import date, timedelta
 import datetime
-from integration_interfaces.aws.secrets_manager import get_secret_json, get_secret
+from integration_interfaces.aws.secrets_manager import get_secret_json, get_secret_pkey
 from integration_interfaces.logging import log
 from integration_interfaces.aws.client_session import client
 
@@ -52,9 +52,9 @@ from integration_interfaces.aws.client_session import client
             "scopes": [self.cert_secret['scopes']]
         }
 
-        clss_sp_pem = get_secret(client, self.sharepoint_site_secrets['sharepoint_cert'])
-        with open(cert_path, "w",
-class SharePointFTP():
+        clss_sp_pem = get_secret_pkey(self.sharepoint_pkey)
+
+        with open(self.cert_path, "w",
                   newline='') as temp_pem:
             temp_pem.write(clss_sp_pem)
 
