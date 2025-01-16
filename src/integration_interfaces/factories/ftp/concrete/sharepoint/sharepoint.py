@@ -11,26 +11,9 @@ from integration_interfaces.aws.secrets_manager import get_secret_json, get_secr
 from integration_interfaces.logging import log
 from integration_interfaces.aws.client_session import client
 
-sharepoint_site_secret_name = 'Canvas_SIS/Sharepoint'
-# cert_path = './tmp/temp_pem.pem'
-cert_path = './temp_pem.pem'
 
-sharepoint_site_secrets = {
-    "sharepoint_sa_user": "",
-    "sharepoint_sa_password" : "",
-    "sharepoint_base_url": "",
-    "sharepoint_site_url": "",
-    "sharepoint_site_name": "",
-    "time_in_days" : "",
-    "sharepoint_auth": "Microsoft_Sharepoint_Auth",
-    "sharepoint_cert": "Microsoft_Certificate"
-}
+    def __init__(self,secret: dict,secret_name: str):
 
-ms_secrets = {
-    "client_id": "",
-    "thumbprint" : "",
-    "scopes": "",
-}
 
 
     def __init__(self):
