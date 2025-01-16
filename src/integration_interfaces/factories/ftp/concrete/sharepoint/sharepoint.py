@@ -11,6 +11,7 @@ from integration_interfaces.aws.secrets_manager import get_secret_json, get_secr
 from integration_interfaces.logging import log
 from integration_interfaces.aws.client_session import client
 
+class SharePointFTP():
 
     def __init__(self,secret: dict,secret_name: str):
 
@@ -24,16 +25,11 @@ from integration_interfaces.aws.client_session import client
         else:
             self.sharepoint_pkey = 'Microsoft_Certificate'   
 
-    def __init__(self):
         if 'tenant' in secret.keys():
             self.tenant = secret['tenant']
         else:
             self.tenant = 'redhawks.onmicrosoft.com'
 
-        self.ctx = None
-        # self.sharepoint_doc_library = sharepointFolder
-        self.sharepoint_full_url = self.sharepoint_site_secrets['sharepoint_base_url'] + '/sites/' + self.sharepoint_site_secrets['sharepoint_site_name']
-        # self.sharepoint_relative_url = self.sharepoint_site_secrets['sharepoint_site_url'] + '/' + self.sharepoint_doc_library
         if 'base_dir' in secret.keys():
             self.base_dir = secret['base_dir']
         else:
@@ -44,6 +40,13 @@ from integration_interfaces.aws.client_session import client
         else:
             self.sharepoint_base_url = 'https://redhawks.sharepoint.com'
 
+        
+        self.sharepoint_relative_url = '/sites/' + secret['sharepoint_site_name'] + '/' + secret['sharepoint_doc_library']
+        self.sharepoint_full_url = self.sharepoint_base_url + '/sites/' + secret['sharepoint_site_name'] 
+
+
+        self.cert_secret = get_secret_json(cert_secret)
+        self.cert_path = f"./{secret_name.replace('/','-')}-sharepoint.pem"
 
         self.cert_settings = {
             "client_id": self.cert_secret['client_id'],
@@ -58,12 +61,10 @@ from integration_interfaces.aws.client_session import client
                   newline='') as temp_pem:
             temp_pem.write(clss_sp_pem)
 
+        self.establish_connection()
+
     def establish_connection(self):
         log.info('Begin SharePoint authentication')
-        #ctx_auth = AuthenticationContext(sharepoint_full_url)
-        #ctx_auth.acquire_token_for_user(self.sp_user, self.sp_pw)
-        #ctx = ClientContext(sharepoint_full_url, ctx_auth)
-
         self.ctx = ClientContext(self.sharepoint_full_url).with_client_certificate(self.tenant, **self.cert_settings)
         log.info('Successfully connected to ' + self.sharepoint_full_url)
 
@@ -75,7 +76,6 @@ from integration_interfaces.aws.client_session import client
     def connected(self):
         '''Returns whether or not the FTP connection is established'''
         return self.ctx is not None
-
 
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def pull_file(self,file_name,remote_path):
