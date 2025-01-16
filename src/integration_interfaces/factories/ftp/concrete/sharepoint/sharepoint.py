@@ -46,10 +46,10 @@ from integration_interfaces.aws.client_session import client
 
 
         self.cert_settings = {
-            'client_id': self.ms_secrets['client_id'],
-            'thumbprint': self.ms_secrets['thumbprint'],
-            'cert_path': cert_path,
-            'scopes': [self.ms_secrets['scopes']]
+            "client_id": self.cert_secret['client_id'],
+            "thumbprint": self.cert_secret['thumbprint'],
+            "cert_path": self.cert_path,
+            "scopes": [self.cert_secret['scopes']]
         }
 
         clss_sp_pem = get_secret(client, self.sharepoint_site_secrets['sharepoint_cert'])
