@@ -97,22 +97,20 @@ class SharePointFTP():
             log.info(file_name + ' does not exist in SharePoint. Exiting Process.')
             raise Exception('File does not exist')
 
-
-    def push_file(self, filename, file_content, target_folder_url):
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
+    def push_file(self, file_name, remote_path):
         '''Push File to FTP'''
         if not self.connected():
             self.establish_connection()
 
-        log.info('Connecting to SFS SharePoint site to push ' + filename + ' for archival')
+        log.info('Loading ' + file_name + ' into bytearray for upload')
+        with open(file_name, 'rb') as file_to_read:
+            file_content = file_to_read.read()
 
-        log.info('Uploading ' + filename + ' to SharePoint')
-        sharepoint_remote_path = target_folder_url + filename
-        sp_dir, name = os.path.split(sharepoint_remote_path)
-
+        log.info('Uploading ' + remote_path + ' to SharePoint')
+        sp_dir, name = os.path.split(remote_path)
         file = self.ctx.web.get_folder_by_server_relative_url(sp_dir).upload_file(name, file_content).execute_query()
-        log.info('Successfully uploaded ' + filename + ' to SharePoint')
-
+        log.info('Successfully uploaded ' + remote_path + ' to SharePoint')
 
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def ls_files(self, target_folder_url):
