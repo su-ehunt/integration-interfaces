@@ -168,14 +168,13 @@ class SharePointFTP():
             log.exception(e)
             raise e
 
-
-    def rm_file(self, relativeUrl):
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
+    def rm_file(self, remote_path):
         try:
             if not self.connected():
                 self.establish_connection()
 
-            file_to_delete = self.ctx.web.get_folder_by_server_relative_url(relativeUrl)
+            file_to_delete = self.ctx.web.get_folder_by_server_relative_url(remote_path)
             file_to_delete.delete_object()
             self.ctx.execute_query()
 
