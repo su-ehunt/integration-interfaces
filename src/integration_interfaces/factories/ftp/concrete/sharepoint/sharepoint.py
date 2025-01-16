@@ -14,17 +14,35 @@ from integration_interfaces.aws.client_session import client
 
     def __init__(self,secret: dict,secret_name: str):
 
+        if 'sharepoint_auth' in secret.keys():
+            cert_secret = secret['sharepoint_auth']
+        else:
+            cert_secret = 'Microsoft_Sharepoint_Auth'
 
+        if 'sharepoint_cert' in secret.keys():
+            self.sharepoint_pkey = secret['sharepoint_cert']
+        else:
+            self.sharepoint_pkey = 'Microsoft_Certificate'   
 
     def __init__(self):
+        if 'tenant' in secret.keys():
+            self.tenant = secret['tenant']
+        else:
+            self.tenant = 'redhawks.onmicrosoft.com'
 
-        self.tenant = 'redhawks.onmicrosoft.com'
         self.ctx = None
-        self.sharepoint_site_secrets = get_secret_json(sharepoint_site_secret_name)#Group with other secret retrieval and put at top
         # self.sharepoint_doc_library = sharepointFolder
         self.sharepoint_full_url = self.sharepoint_site_secrets['sharepoint_base_url'] + '/sites/' + self.sharepoint_site_secrets['sharepoint_site_name']
         # self.sharepoint_relative_url = self.sharepoint_site_secrets['sharepoint_site_url'] + '/' + self.sharepoint_doc_library
-        self.ms_secrets = get_secret_json(self.sharepoint_site_secrets['sharepoint_auth'])#Gropu with other secret retrieval
+        if 'base_dir' in secret.keys():
+            self.base_dir = secret['base_dir']
+        else:
+            self.base_dir = ''
+        
+        if 'sharepoint_base_url' in secret.keys():
+            self.sharepoint_base_url = secret['sharepoint_base_url']
+        else:
+            self.sharepoint_base_url = 'https://redhawks.sharepoint.com'
 
 
         self.cert_settings = {
