@@ -83,10 +83,10 @@ class SharePointFTP():
         if not self.connected():
             self.establish_connection()
 
-        log.info('Connecting to SFS SharePoint site to download ' + file_name + ' from SharePoint')
+        log.info('Connecting to SFS SharePoint site to download ' + remote_path + ' from SharePoint')
 
-        log.info('Downloading ' + file_name + ' from SharePoint')
-        sharepoint_file_url = self.sharepoint_relative_url + file_name
+        log.info('Downloading ' + remote_path + ' from SharePoint')
+        sharepoint_file_url = self.sharepoint_relative_url + remote_path
         response = File.open_binary(self.ctx, sharepoint_file_url)
 
         if response.status_code == requests.codes.ok:
