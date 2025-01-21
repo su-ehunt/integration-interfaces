@@ -11,6 +11,7 @@ from integration_interfaces.aws.secrets_manager import get_secret_json, get_secr
 from integration_interfaces.logging import log
 from integration_interfaces.aws.client_session import client
 
+
 class SharePointFTP():
 
     def __init__(self,secret: dict,secret_name: str):
@@ -40,10 +41,9 @@ class SharePointFTP():
         else:
             self.sharepoint_base_url = 'https://redhawks.sharepoint.com'
 
-        
+        self.sharepoint_doc_library = secret['sharepoint_doc_library']
         self.sharepoint_relative_url = '/sites/' + secret['sharepoint_site_name'] + '/' + secret['sharepoint_doc_library']
-        self.sharepoint_full_url = self.sharepoint_base_url + '/sites/' + secret['sharepoint_site_name'] 
-
+        self.sharepoint_full_url = self.sharepoint_base_url + '/sites/' + secret['sharepoint_site_name']
 
         self.cert_secret = get_secret_json(cert_secret)
         self.cert_path = f"./{secret_name.replace('/','-')}-sharepoint.pem"
@@ -108,7 +108,7 @@ class SharePointFTP():
             file_content = file_to_read.read()
 
         log.info('Uploading ' + remote_path + ' to SharePoint')
-        sp_dir, name = os.path.split(remote_path)
+        sp_dir, name = os.path.split(self.sharepoint_doc_library + remote_path)
         file = self.ctx.web.get_folder_by_server_relative_url(sp_dir).upload_file(name, file_content).execute_query()
         log.info('Successfully uploaded ' + remote_path + ' to SharePoint')
 
