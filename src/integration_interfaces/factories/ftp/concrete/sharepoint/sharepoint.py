@@ -113,15 +113,15 @@ class SharePointFTP():
         log.info('Successfully uploaded ' + remote_path + ' to SharePoint')
 
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
-    def ls_files(self, target_folder_url):
-
+    def ls_files(self, path):
+        path = self.sharepoint_doc_library + path
         ListofItems = []
 
         try:
             if not self.connected():
                 self.establish_connection()
 
-            libraryFolderroot = self.ctx.web.get_folder_by_server_relative_url(target_folder_url)
+            libraryFolderroot = self.ctx.web.get_folder_by_server_relative_url(path)
             self.ctx.load(libraryFolderroot)
             self.ctx.execute_query()
             libraryFolderroot.expand(["Files", "Folders"]).get().execute_query()
@@ -170,6 +170,7 @@ class SharePointFTP():
 
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def rm_file(self, remote_path):
+        remote_path = self.sharepoint_doc_library + remote_path
         try:
             if not self.connected():
                 self.establish_connection()
