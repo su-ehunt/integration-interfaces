@@ -64,7 +64,7 @@ class SMBServer():
     @auth_wrap_ftp(apply_wrap=apply_wrap)
     def ls_attributes(self, remote_path):
         """List File Attributes"""
-        return self.conn.file_attributes(self.share_name, remote_path)
+        return self.conn.getAttributes(self.share_name, remote_path)
 
     @auth_wrap_ftp(apply_wrap=apply_wrap)
     def rm_file(self, filename, remote_path):
