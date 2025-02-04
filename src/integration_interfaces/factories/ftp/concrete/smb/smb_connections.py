@@ -1,20 +1,21 @@
-
 from smb.SMBConnection import SMBConnection
 from dataclasses import dataclass
 from integration_interfaces.factories.ftp.auth_wrap_ftp import auth_wrap_ftp
 from integration_interfaces.logging import log
 from tenacity import retry, stop_after_attempt, wait_exponential
 
+
 @dataclass
 class SMBServer():
     """
-    Class for implimenting SMB Connections
+    Class for implementing SMB Connections
     Fidelity
     """
 
     conn: SMBConnection | None
     apply_wrap = True
-    def __init__(self,secret,secret_name):
+
+    def __init__(self, secret, secret_name):
         self.ad_username = secret['ad_username']
         self.ad_password = secret['ad_password']
         self.share_server_name = secret['share_server_name']
@@ -26,7 +27,7 @@ class SMBServer():
 
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
     def establish_connection(self):
-        '''Establishes SMB connection'''
+        """Establishes SMB connection"""
         log.info(f"Establishing SMB Connection to {self.secret_name}")
         conn = SMBConnection(self.ad_username, self.ad_password, self.ad_username, self.share_server_name, use_ntlm_v2=True)
         self.conn = conn
@@ -34,7 +35,7 @@ class SMBServer():
         log.info("SMB Connection Established!")
    
     def close_connection(self):
-        '''Close SMB Connection'''
+        """Close SMB Connection"""
         log.info(f"Closing Connection to {self.secret_name}")
         self.conn.close()
         log.info("Connection Closed")
@@ -43,27 +44,31 @@ class SMBServer():
         log.info("Checking if connected")
         return self.conn is not None
 
-    @auth_wrap_ftp(apply_wrap = apply_wrap)   
-    def push_file(self,filename,remote_path):
+    @auth_wrap_ftp(apply_wrap=apply_wrap)
+    def push_file(self, filename, remote_path):
         """Push File over SMB"""
-        log.info("")
         with open(filename, 'rb') as file_obj:
             self.conn.storeFile(self.share_name, remote_path, file_obj)
 
-    @auth_wrap_ftp(apply_wrap = apply_wrap)
-    def pull_file(self,filename,remote_path):
-        '''Pul File from FTP'''
+    @auth_wrap_ftp(apply_wrap=apply_wrap)
+    def pull_file(self, filename, remote_path):
+        """Pull File over SMB"""
         with open(filename, 'wb') as file_obj:
-            self.conn.retrieveFile(remote_path, filename, file_obj)
+            self.conn.retrieveFile(self.share_name, remote_path, file_obj)
 
-    @auth_wrap_ftp(apply_wrap = apply_wrap)
-    def ls_files(self,remote_path):
-        '''List Files in Directory'''
-        return self.conn.listPath(remote_path,'/')
-    
-    @auth_wrap_ftp(apply_wrap = apply_wrap)
-    def rm_file(self,filename,remote_path):
-        '''Deletes Remote File'''
+    @auth_wrap_ftp(apply_wrap=apply_wrap)
+    def ls_files(self, remote_path):
+        """List Files in Directory"""
+        return self.conn.listPath(remote_path, '/')
+
+    @auth_wrap_ftp(apply_wrap=apply_wrap)
+    def ls_attributes(self, remote_path):
+        """List File Attributes"""
+        return self.conn.file_attributes(self.share_name, remote_path)
+
+    @auth_wrap_ftp(apply_wrap=apply_wrap)
+    def rm_file(self, filename, remote_path):
+        """Deletes Remote File"""
         self.conn.deleteFiles(remote_path, filename)
 
     def info(self):
@@ -76,11 +81,12 @@ class SMBServer():
 
 class ROSMBServer(SMBServer):
     """
-    Class for implimenting SMB Connections
+    Class for implementing SMB Connections
     Fidelity
     """
 
     apply_wrap = True
+
     def __init__(self, secret):
         super().__init__(secret)
     
@@ -93,8 +99,8 @@ class ROSMBServer(SMBServer):
     def connected(self):
         return super().connected()
     
-    @auth_wrap_ftp(apply_wrap = apply_wrap)   
-    def push_file(self,filename,remote_path):
+    @auth_wrap_ftp(apply_wrap=apply_wrap)
+    def push_file(self, filename, remote_path):
         """Push File over SMB"""
         log.info("Skipping File Write Operation during Read Only Session")
     
@@ -104,9 +110,9 @@ class ROSMBServer(SMBServer):
     def ls_files(self, remote_path):
         return super().ls_files(remote_path)
     
-    @auth_wrap_ftp(apply_wrap = apply_wrap)
-    def rm_file(self,filename,remote_path):
-        '''Deletes Remote File'''
+    @auth_wrap_ftp(apply_wrap=apply_wrap)
+    def rm_file(self, filename, remote_path):
+        """Deletes Remote File"""
         log.info("Skipping File Deletion Operation during Read Only Session")
 
     def info(self):
