@@ -3,7 +3,8 @@ from integration_interfaces.aws.secrets_manager import get_secret_json
 from integration_interfaces.factories.sql.sql_server_protocol import SQLServer
 from integration_interfaces.factories.sql.sql_protocols import SQL_PROTOCOLS
 
-def sql_factory(db_secret,cred_secret) -> type[SQLServer]:
+
+def sql_factory(db_secret, cred_secret) -> SQLServer:
     """
     SQL Factory takes in a secret describing the database in the first 
     argument, and connection credentials in the second, and returns a sql server object
