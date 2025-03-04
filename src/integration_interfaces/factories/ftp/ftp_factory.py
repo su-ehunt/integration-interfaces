@@ -5,7 +5,7 @@ from integration_interfaces.factories.ftp.ftp_server_protocol import FTPServer
 from integration_interfaces.factories.ftp.ftp_protocols import FTP_PROTOCOLS
 
 
-def ftp_factory(secret_name) -> type[FTPServer]:
+def ftp_factory(secret_name) -> FTPServer:
     """Function to take in a secret and return the endpoint object we want"""
     secret = get_secret_json(secret_name)
     auth = secret["auth"].lower()

@@ -18,7 +18,7 @@ class FTPServer(Protocol):
     def pull_file(self,filename,remote_path):
         '''Pul File from FTP'''
 
-    def ls_files(self,remote_path):
+    def ls_files(self,remote_path) -> list[str]:
         '''List Files in Directory'''
 
     def rm_file(self,filename):
